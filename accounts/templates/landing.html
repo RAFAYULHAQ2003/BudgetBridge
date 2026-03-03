@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUDGETBRIDGE — Finance Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/png" sizes="48x48" href="{% static 'favicon-copy.png' %}">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Navbar -->
+  
+  <header class="bg-white border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      
+      <div class="flex items-center gap-3">
+        <img src="{% static 'favicon-copy.png' %}" alt="Logo" class="h-24 w-24 object-contain">
+        <span class="text-2xl font-black tracking-tight text-blue-800">
+          BUDGET<span class="text-blue-600">BRIDGE</span>
+        </span>
+      </div>
+
+      <a href="{% url 'login' %}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors">
+        Sign In
+      </a>
+      
+    </div>
+ </header>
+
+
+
+  <!-- Hero -->
+  <section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Finance Management for Software Houses</h1>
+    <p class="text-gray-500 text-lg max-w-xl mx-auto mb-8">
+      Manage project budgets, track expenses, run payroll, and generate invoices — all from one simple system.
+    </p>
+    <a href="{% url 'login' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors">
+      Sign In to Get Started
+    </a>
+  </section>
+
+  <!-- Divider -->
+  <div class="border-t border-gray-200 max-w-5xl mx-auto"></div>
+
+  <!-- Features -->
+  <section class="max-w-5xl mx-auto px-6 py-16">
+    <h2 class="text-2xl font-bold text-gray-800 text-center mb-10">What's included</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">📁</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Project Management</h3>
+        <p class="text-sm text-gray-500">Create projects, set budgets, assign managers, and track progress.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">🧾</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Expense Tracking</h3>
+        <p class="text-sm text-gray-500">Log and approve expenses per project with category breakdown.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">💼</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Payroll Management</h3>
+        <p class="text-sm text-gray-500">Manage salaries, bonuses, and deductions for your team.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">📄</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Invoicing</h3>
+        <p class="text-sm text-gray-500">Generate client invoices and track payment status easily.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">🎯</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Budget Control</h3>
+        <p class="text-sm text-gray-500">Get alerts when projects approach their spending limit.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="text-2xl mb-3">📈</div>
+        <h3 class="font-semibold text-gray-800 mb-1">Financial Reports</h3>
+        <p class="text-sm text-gray-500">Profit & Loss, project costs, and employee expense reports.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 py-6 text-center text-sm text-gray-400">
+    © 2026 BUDGETBRIDGE. Built for software houses.
+  </footer>
+
+</body>
+</html>
