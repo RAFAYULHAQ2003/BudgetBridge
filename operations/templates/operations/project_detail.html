@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+
+    <h2>Project: {{ project.name }}</h2>
+
+    <div class="card mb-3">
+        <p><strong>Company:</strong> {{ project.company.name }}</p>
+        <p><strong>Status:</strong> {{ project.status|title }}</p>
+        <p><strong>Budget:</strong> {{ project.budget }}</p>
+        <p><strong>Start Date:</strong> {{ project.start_date }}</p>
+        <p><strong>End Date:</strong> {{ project.end_date }}</p>
+
+        <p><strong>Project Manager:</strong>
+            {% if project.project_manager %}
+                {{ project.project_manager }}
+            {% else %}
+                <span class="text-muted">Not Assigned</span>
+            {% endif %}
+        </p>
+
+        <p><strong>Client:</strong>
+            {% if project.client %}
+                {{ project.client.name }}
+            {% else %}
+                <span class="text-muted">No Client</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <h3>Assigned Employees</h3>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Role in Project</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in project.employee_assignments.all %}
+                <tr>
+                    <td>{{ assignment.employee }}</td>
+                    <td>{{ assignment.role_in_project }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No employees assigned to this project.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

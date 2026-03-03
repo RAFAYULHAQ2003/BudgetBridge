@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+
+    <h2>{{ company.name }} - Projects</h2>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Budget</th>
+                    <th>Project Manager</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>
+                        <span class="badge badge-status">
+                            {{ project.status|title }}
+                        </span>
+                    </td>
+                    <td>{{ project.budget }}</td>
+                    <td>
+                        {% if project.project_manager %}
+                            {{ project.project_manager }}
+                        {% else %}
+                            <span class="text-muted">Not Assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'project_detail' project.id %}" class="btn btn-sm">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No projects found for this company.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}
