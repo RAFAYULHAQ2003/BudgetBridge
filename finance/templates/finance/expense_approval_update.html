@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Approve Expense</h2>
+
+<p>Employee: {{ object.employee }}</p>
+<p>Project: {{ object.project }}</p>
+<p>Category: {{ object.category }}</p>
+<p>Amount: {{ object.amount }} {{ object.currency }}</p>
+<p>Date: {{ object.expense_date }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="id_status">Status:</label>
+  {{ form.status }}
+  <button type="submit">Update</button>
+</form>
+{% endblock %}

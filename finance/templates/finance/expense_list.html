@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h2>{{ company.name }} - Expenses</h2>
+
+    <div class="mb-3">
+        <a href="{% url 'expense-add' %}" class="btn btn-primary">Add Expense</a>
+    </div>
+
+    <div class="card">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Project</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.employee }}</td>
+                    <td>{{ expense.project }}</td>
+                    <td>{{ expense.category }}</td>
+                    <td>{{ expense.amount }} {{ expense.currency }}</td>
+                    <td>
+                        <span class="badge badge-status">
+                            {{ expense.status|title }}
+                        </span>
+                    </td>
+                    <td>{{ expense.expense_date }}</td>
+                    
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No expenses found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

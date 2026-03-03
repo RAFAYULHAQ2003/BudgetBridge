@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Select a Project to view Invoices</h2>
+
+<form method="get">
+  <label for="project">Project:</label>
+  <select id="project" name="project" onchange="location = this.value;">
+    <option value="">-- Select Project --</option>
+    {% for project in projects %}
+      <option value="{% url 'project_invoices' company.id project.id %}">
+        {{ project.name }}
+      </option>
+    {% endfor %}
+  </select>
+</form>
+{% endblock %}

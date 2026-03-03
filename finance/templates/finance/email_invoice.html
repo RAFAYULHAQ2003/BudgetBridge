@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .invoice-box {
+            max-width: 700px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0,0,0,.15);
+        }
+        table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+        table td { padding: 5px; vertical-align: top; }
+        table tr.heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
+        table tr.item td { border-bottom: 1px solid #eee; }
+        .total { text-align: right; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <h2>Invoice: {{ invoice.invoice_no }}</h2>
+        <p><strong>Project:</strong> {{ invoice.project.name }}</p>
+        <p><strong>Client:</strong> {{ client.name }}</p>
+        <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+        <!-- <p><strong>Due Date:</strong> {{ invoice.due_date }}</p> -->
+
+        <table>
+            <tr class="heading">
+                <td>Description</td>
+                <td>Quantity</td>
+                <td>Unit Price</td>
+                <td>Total</td>
+            </tr>
+            
+            <tr class="total">
+                <td colspan="3">Subtotal:</td>
+                <td>{{ invoice.subtotal }}</td>
+            </tr>
+            {% if invoice.tax %}
+            <tr class="total">
+                <td colspan="3">Tax:</td>
+                <td>{{ invoice.tax }}</td>
+            </tr>
+            {% endif %}
+            <tr class="total">
+                <td colspan="3">Total:</td>
+                <td>{{ invoice.total }}</td>
+            </tr>
+        </table>
+
+        <p>Thank you for your business!</p>
+    </div>
+</body>
+</html>

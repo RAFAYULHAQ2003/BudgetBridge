@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <h1 class="page-title">Good morning, {{ request.user.first_name|default:"there" }} 👋</h1>
+  <p class="page-subtitle">Here's an overview of your finances today.</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+  <!-- KPI Cards -->
+  <div class="dashboard-stats-grid">
+    <div class="kpi-card">
+      <h3>Total Revenue</h3>
+      <p>{{ total_revenue|default:0|floatformat:2 }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Total Expenses</h3>
+      <p>{{ total_expenses|default:0|floatformat:2 }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Paid Invoices</h3>
+      <p>{{ paid_invoices_count|default:0 }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Overdue Invoices</h3>
+      <p>{{ overdue_count|default:0 }}</p>
+    </div>
+  </div>
+
+  <!-- Project Budget Chart -->
+  <section>
+    <h2>Project Budgets</h2>
+    <canvas id="projectBudgetChart" height="150"></canvas>
+  </section>
+
+  <!-- Financial Overview Pie Chart -->
+  <section>
+    <h2>Financial Overview</h2>
+    <canvas id="financialOverviewChart" height="150"></canvas>
+  </section>
+
+  <!-- Recent Invoices -->
+  <section>
+    <h2>Recent Invoices</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Client</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in recent_invoices %}
+        <tr>
+          <td>{{ inv.number }}</td>
+          <td>{{ inv.client_name }}</td>
+          <td>{{ inv.amount|default:0|floatformat:2 }}</td>
+          <td>{{ inv.status }}</td>
+          <td>{{ inv.issue_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Project Budget Chart
+  const projectLabels = [{% for project in projects_budget %}"{{ project.name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const projectData = [{% for project in projects_budget %}{{ project.spent_pct|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+  new Chart(document.getElementById('projectBudgetChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: projectLabels, datasets: [{ label: '% Budget Used', data: projectData, backgroundColor: projectData.map(v => v>90?'#e74c3c':v>70?'#f1c40f':'#2ecc71') }] },
+    options: { responsive:true, scales:{y:{beginAtZero:true,max:100,ticks:{callback:val=>val+'%'}}} }
+  });
+
+  // Financial Overview Pie Chart
+  const financialData = [{{ total_revenue|default:0|floatformat:2 }}, {{ total_expenses|default:0|floatformat:2 }}];
+  new Chart(document.getElementById('financialOverviewChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: ['Revenue','Expenses'], datasets: [{ data: financialData, backgroundColor: ['#3498db','#e74c3c'] }] },
+    options: { responsive:true }
+  });
+</script>
+{% endblock %}

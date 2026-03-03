@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Expenses Awaiting Approval</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Project</th>
+      <th>Category</th>
+      <th>Amount</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for expense in expenses %}
+      <tr>
+        <td>{{ expense.employee }}</td>
+        <td>{{ expense.project }}</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.amount }} {{ expense.currency }}</td>
+        <td>{{ expense.expense_date }}</td>
+        <td>
+          <a href="{% url 'expense_approval_update' expense.id %}">Status</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="6">No expenses awaiting approval.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

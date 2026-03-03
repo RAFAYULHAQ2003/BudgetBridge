@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Invoices</h2>
+
+    <!-- Project Filter Dropdown -->
+    <form method="get" id="project-filter-form" class="mb-4">
+        <label for="project-select">Filter by Project:</label>
+        <select id="project-select" name="project" class="form-select" onchange="this.form.submit()">
+            <option value="">All Projects</option>
+            {% for project in projects %}
+            <option value="{{ project.id }}"
+                {% if project.id|stringformat:"s" == selected_project_id|stringformat:"s" %}selected{% endif %}>
+                {{ project.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<!-- Invoice Table -->
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Invoice No</th>
+                <th>Project</th>
+                <th>Client</th>
+                <th>Subtotal</th>
+                <th>Tax</th>
+                <th>Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.invoice_no }}</td>
+                <td>{{ invoice.project.name if invoice.project else "-" }}</td>
+                <td>{{ invoice.client.name }}</td>
+                <td>{{ invoice.subtotal }}</td>
+                <td>{{ invoice.tax_amount }}</td>
+                <td>{{ invoice.total_amount }}</td>
+                <td>{{ invoice.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No invoices found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- JS for Redirecting on Project Select -->
+<script>
+document.getElementById("project-select").addEventListener("change", function() {
+    const projectId = this.value;
+    const companyId = "{{ company.id }}";  // make sure 'company' is in template context
+
+    if (projectId) {
+        // URL for invoices of specific project
+        window.location.href = "{% url 'project_invoices' company_id='COMPANY_ID_PLACEHOLDER' project_id='PROJECT_ID_PLACEHOLDER' %}"
+            .replace("COMPANY_ID_PLACEHOLDER", companyId)
+            .replace("PROJECT_ID_PLACEHOLDER", projectId);
+    } else {
+        // URL for all invoices of the company
+        window.location.href = "{% url 'company_invoices' company_id='COMPANY_ID_PLACEHOLDER' %}"
+            .replace("COMPANY_ID_PLACEHOLDER", companyId);
+    }
+});
+</script>
+
+{% endblock content %}
