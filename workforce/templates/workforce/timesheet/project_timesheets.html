@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Project Timesheets{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Project Timesheets</h2>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Project</th>
+                <th>Hours Worked</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ts in timesheets %}
+            <tr>
+                <td>{{ ts.date }}</td>
+                <td>{{ ts.employee.user.get_full_name }}</td>
+                <td>{{ ts.project.name }}</td>
+                <td>{{ ts.hours_worked }}</td>
+                <td>{{ ts.status }}</td>
+                <td>
+                    {% if ts.status == "submitted" %}
+                    <form method="post" action="{% url 'approve_timesheet' ts.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    {% else %}
+                        Approved
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No timesheets found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

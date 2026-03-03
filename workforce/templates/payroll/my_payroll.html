@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Payroll{% endblock %}
+{% block content %}
+<h2>My Payroll</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Period</th>
+      <th>Gross Pay</th>
+      <th>Deductions</th>
+      <th>Net Pay</th>
+      <th>Generated At</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in payroll_items %}
+      <tr>
+        <td>{{ item.payroll_run.period_start }} - {{ item.payroll_run.period_end }}</td>
+        <td>{{ item.gross_pay }}</td>
+        <td>{{ item.deductions }}</td>
+        <td>{{ item.net_pay }}</td>
+        <td>{{ item.generated_at }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No payroll found for your account.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

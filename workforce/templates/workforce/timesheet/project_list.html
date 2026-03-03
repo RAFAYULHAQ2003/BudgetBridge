@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Project Timesheets{% endblock %}
+
+{% block content %}
+<h2>Timesheets for Projects You Manage</h2>
+
+<table class="table-auto w-full border border-gray-300">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2">Employee</th>
+            <th class="px-4 py-2">Project</th>
+            <th class="px-4 py-2">Hours Worked</th>
+            <th class="px-4 py-2">Status</th>
+            <th class="px-4 py-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for timesheet in timesheets %}
+        <tr class="border-t">
+            <td class="px-4 py-2">{{ timesheet.date }}</td>
+            <td class="px-4 py-2">{{ timesheet.employee.user.get_full_name }}</td>
+            <td class="px-4 py-2">{{ timesheet.project.name }}</td>
+            <td class="px-4 py-2">{{ timesheet.hours_worked }}</td>
+            <td class="px-4 py-2">{{ timesheet.status }}</td>
+            <td class="px-4 py-2">
+                {% if timesheet.status == "submitted" %}
+                    <form method="post" action="{% url 'approve_timesheet' timesheet.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded">
+                            Approve
+                        </button>
+                    </form>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="px-4 py-2 text-center text-gray-500">
+                No timesheets found.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Confirm Delete Timesheet{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Confirm Delete Timesheet</h2>
+    <p>Are you sure you want to delete the following timesheet?</p>
+
+    <table class="table table-bordered mt-3">
+        <tr>
+            <th>Date</th>
+            <td>{{ object.date }}</td>
+        </tr>
+        <tr>
+            <th>Project</th>
+            <td>{{ object.project.name }}</td>
+        </tr>
+        <tr>
+            <th>Hours Worked</th>
+            <td>{{ object.hours_worked }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{ object.status }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ object.description }}</td>
+        </tr>
+    </table>
+
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'my_timesheets' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

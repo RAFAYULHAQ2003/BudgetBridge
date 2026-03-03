@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Create Payroll Run{% endblock %}
+
+{% block content %}
+<h2>Create Payroll Run</h2>
+<!-- Display non-field errors -->
+{% if form.non_field_errors %}
+  <div class="alert alert-danger">
+    {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+<form method="post">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label for="id_period_start">Start Date</label>
+    <input 
+      type="date" 
+      name="period_start" 
+      id="id_period_start" 
+      class="form-control" 
+      value="{{ form.period_start.value|default:'' }}"
+      required
+    >
+  </div>
+
+  <div class="form-group mt-3">
+    <label for="id_period_end">End Date</label>
+    <input 
+      type="date" 
+      name="period_end" 
+      id="id_period_end" 
+      class="form-control" 
+      value="{{ form.period_end.value|default:'' }}"
+      required
+    >
+  </div>
+
+  <button class="btn btn-success mt-4" type="submit">Generate Payroll</button>
+</form>
+{% endblock %}
+
+

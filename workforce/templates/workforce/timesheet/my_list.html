@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}My Timesheets{% endblock %}
+
+{% block content %}
+<h2>My Timesheets</h2>
+
+<a href="{% url 'timesheet_add' %}" class="btn btn-primary mb-3">
+    + Add Timesheet
+</a>
+
+<<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Project</th>
+      <th>Hours</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ts in timesheets %}
+    <tr>
+      <td>{{ ts.date }}</td>
+      <td>{{ ts.project.name }}</td>
+      <td>{{ ts.hours_worked }}</td>
+      <td>{{ ts.status }}</td>
+      <td>
+        {% if ts.status == "submitted" %}
+          <a href="{% url 'timesheet_edit' ts.id %}" class="btn btn-sm btn-primary">Edit</a>
+          <a href="{% url 'timesheet_delete' ts.id %}" class="btn btn-sm btn-danger">Delete</a>
+        {% else %}
+          No actions
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
