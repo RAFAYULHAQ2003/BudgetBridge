@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Finance Management{% endblock %} — FinanceOS</title>
+  
+  {% load static %}
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="{% static 'css/global.css' %}" />
+
+  <!-- Block for per-page CSS -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Mobile sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout-wrapper">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  {% include "partials/sidebar.html" %}
+
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- ═══ TOPBAR / NAVBAR ═══ -->
+    {% include "partials/navbar.html" %}
+
+    <!-- ═══ FLASH MESSAGES ═══ -->
+    {% include "partials/messages.html" %}
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      {% block page_header %}{% endblock %}
+
+      {% block content %}{% endblock %}
+
+    </main><!-- /main-content -->
+
+    <!-- ═══ FOOTER ═══ -->
+    {% include "partials/footer.html" %}
+
+  </div><!-- /flex wrapper -->
+</div><!-- /layout-wrapper -->
+
+<!-- Block for per-page scripts -->
+{% block extra_js %}{% endblock %}
+
+<!-- Global JS (alerts auto-dismiss, sidebar toggle) -->
+<script>
+  /* ── Sidebar Toggle ── */
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+  }
+
+  /* ── Alert Auto-Dismiss ── */
+  function dismissAlert(el) {
+    el.classList.add('fade-out');
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  document.querySelectorAll('.alert[data-auto-dismiss]').forEach(alert => {
+    const delay = parseInt(alert.dataset.autoDismiss) || 4000;
+    setTimeout(() => dismissAlert(alert), delay);
+  });
+</script>
+
+</body>
+</html>

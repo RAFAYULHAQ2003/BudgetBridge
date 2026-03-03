@@ -1,0 +1,154 @@
+{% load static %}
+
+<aside class="sidebar" id="sidebar">
+
+  <!-- Brand -->
+ 
+
+
+   <div class="sidebar-brand">
+    
+    <div class="brand-name">
+      BUDGETBRIDGE
+      <span>Management System</span>
+    </div>
+  </div>
+
+
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+
+    <!-- Main -->
+    <div class="nav-section">Main</div>
+
+    <div class="nav-item">
+      <a href="{% url 'dashboard' %}" class="nav-link">
+        <span class="nav-icon">📊</span>
+        Dashboard
+        
+      </a>
+    </div>
+
+    <!-- Projects -->
+    <div class="nav-section">Projects</div>
+
+    <div class="nav-item">
+  <a href="{% url 'company_projects' request.user.company.id %}" class="nav-link">
+    <span class="nav-icon">📁</span>
+    Projects
+  </a>
+</div>
+
+
+   
+    <!-- Finance -->
+    <div class="nav-section">Finance</div>
+
+   
+
+    <div class="nav-item">
+      <a href="#" class="nav-link">
+        <span class="nav-icon">💳</span>
+        Payments
+        {# {% url 'payments:list' %} commented for now #}
+      </a>
+    </div>
+
+    <div class="nav-item">
+  <a href="{% url 'expense-list' %}" 
+     class="nav-link {% if request.resolver_match.url_name == 'expense-list' %}active{% endif %}">
+    <span class="nav-icon">🧾</span>
+    Expenses
+    {% if pending_expenses_count %}
+      <span class="nav-badge">{{ pending_expenses_count }}</span>
+    {% endif %}
+  </a>
+</div>
+
+
+{% if request.user.employee_profile.is_project_manager %}
+<div class="nav-item">
+  <a href="{% url 'expense_approval_list' %}" class="nav-link {% if request.resolver_match.url_name == 'expense_approval_list' %}active{% endif %}">
+    ✔️ Approve Expenses
+  </a>
+</div>
+{% endif %}
+
+    <!-- HR & Payroll -->
+    <div class="nav-section">HR & Payroll</div>
+<div class="nav-item">
+  <a href="{% url 'my_payroll' %}" 
+     class="nav-link {% if request.resolver_match.url_name == 'my_payroll' %}active{% endif %}">
+    <span class="nav-icon">💼</span>
+    My Payroll
+  </a>
+</div>
+
+<div class="nav-item">
+  <a href="{% url 'payroll_run_create' %}" 
+     class="nav-link {% if request.resolver_match.url_name == 'payroll_run_create' %}active{% endif %}">
+    <span class="nav-icon">💼</span>
+    Payroll Run
+  </a>
+</div>
+
+
+
+    <div class="nav-item">
+     <a href="{% url 'my_timesheets' %}"
+     class="nav-link {% if request.resolver_match.url_name == 'my_timesheets' %}active{% endif %}">
+    <span class="nav-icon">⏱️</span>
+    Time Tracking
+  </a>
+</div>
+
+
+
+<div class="nav-item">
+  <a href="{% url 'project_timesheets' %}" 
+     class="nav-link {% if request.resolver_match.url_name == 'project_timesheets' %}active{% endif %}">
+    <span class="nav-icon">⏱️</span>
+    Time Tracking Approvals
+  </a>
+</div>
+
+
+    <!-- Reports -->
+    <div class="nav-section">Reports</div>
+
+    <div class="nav-item">
+      <a href="{% url 'report' %}" class="nav-link">
+        <span class="nav-icon">📈</span>
+        Reports
+      </a>
+    </div>
+
+   
+  </nav><!-- /sidebar-nav -->
+
+  <!-- Sidebar Footer: logged-in user -->
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+      </div>
+      <div class="user-info">
+        <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="user-role">{{ request.user.profile.get_role_display|default:"User" }}</div>
+      </div>
+      <!-- Quick logout -->
+      <!-- <a href="" title="Sign out" style="color:var(--sidebar-text);font-size:16px;">⎋</a> -->
+
+        {% if request.user.is_authenticated %}
+  <form method="POST" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+  Sign Out ➜
+</button>
+  </form>
+  {% endif %}
+    </div>
+  </div>
+
+</aside>

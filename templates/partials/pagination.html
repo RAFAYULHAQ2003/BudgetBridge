@@ -1,0 +1,59 @@
+{% comment %}
+  Usage in a view template:
+    {% include "partials/pagination.html" with page_obj=page_obj %}
+
+  Requires: `page_obj` (Django Paginator Page object) in context.
+  Optional: wrap in .pagination-row div if inside a card footer.
+{% endcomment %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pagination-row">
+
+  <!-- Info text -->
+  <span class="pagination-info">
+    Showing
+    <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong>
+    of <strong>{{ page_obj.paginator.count }}</strong> results
+  </span>
+
+  <!-- Page buttons -->
+  <nav class="pagination" aria-label="Pagination">
+
+    {# Previous #}
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+         class="page-btn" aria-label="Previous page">&#8592;</a>
+    {% else %}
+      <span class="page-btn disabled" aria-disabled="true">&#8592;</span>
+    {% endif %}
+
+    {# Page numbers — show a window around current page #}
+    {% for i in page_obj.paginator.page_range %}
+      {% if i == page_obj.number %}
+        <span class="page-btn active" aria-current="page">{{ i }}</span>
+
+      {% elif i == 1 or i == page_obj.paginator.num_pages %}
+        <a href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+           class="page-btn">{{ i }}</a>
+
+      {% elif i == page_obj.number|add:"-2" or i == page_obj.number|add:"2" %}
+        {# Ellipsis gap markers #}
+        <span class="page-btn disabled" style="border:none;cursor:default;">…</span>
+
+      {% elif i >= page_obj.number|add:"-1" and i <= page_obj.number|add:"1" %}
+        <a href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+           class="page-btn">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {# Next #}
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+         class="page-btn" aria-label="Next page">&#8594;</a>
+    {% else %}
+      <span class="page-btn disabled" aria-disabled="true">&#8594;</span>
+    {% endif %}
+
+  </nav>
+</div>
+{% endif %}
