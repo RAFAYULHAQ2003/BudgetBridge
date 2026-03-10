@@ -14,7 +14,7 @@ class BaseCompanyAdmin(admin.ModelAdmin):
         return qs.filter(company=request.user.company)
 
     def save_model(self, request, obj, form, change):
-        # Auto-assign the company of the user creating the record
+      
         if not request.user.is_superuser:
             obj.company = request.user.company
         super().save_model(request, obj, form, change)
@@ -67,17 +67,6 @@ class CompanyAdmin(admin.ModelAdmin):
     
 
 
-# @admin.register(EmployeeProject)
-# class EmployeeProjectAdmin(admin.ModelAdmin):
-#     list_display = (
-#         "id",
-#         "employee",
-#         "project",
-#         "role_in_project",
-#     )
-#     list_filter = ("project",)         # Filter by project in admin sidebar
-#     search_fields = ("employee__user__username", "project__name")  # Search by employee username or project name
-#     ordering = ("project", "employee") # Default ordering
 
 
 @admin.register(EmployeeProject)
@@ -94,14 +83,14 @@ class EmployeeProjectAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # Superusers see all
+       
         if request.user.is_superuser:
             return qs
-        # Non-superusers see only projects in their company
+        
         return qs.filter(project__company=request.user.company)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        # Filter dropdowns for non-superusers
+        #
         if not request.user.is_superuser:
             if db_field.name == "employee":
                 kwargs["queryset"] = EmployeeProfile.objects.filter(company=request.user.company)

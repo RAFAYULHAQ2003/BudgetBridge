@@ -9,6 +9,15 @@
         <p><strong>Company:</strong> {{ project.company.name }}</p>
         <p><strong>Status:</strong> {{ project.status|title }}</p>
         <p><strong>Budget:</strong> {{ project.budget }}</p>
+        <p><strong>Total Approved Expenses:</strong> {{ total_approved_expenses }}</p>
+        <p>
+    <strong>Profit/Loss Percentage:</strong>
+    {% if profit_loss_percentage >= 0 %}
+        <span style="color:green;">{{ profit_loss_percentage }}%</span>
+    {% else %}
+        <span style="color:red;">{{ profit_loss_percentage }}%</span>
+    {% endif %}
+</p>
         <p><strong>Start Date:</strong> {{ project.start_date }}</p>
         <p><strong>End Date:</strong> {{ project.end_date }}</p>
 
