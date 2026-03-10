@@ -3,12 +3,10 @@ import uuid
 from enum import StrEnum
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
-from django.db.models import Q
+from django.db.models import Q, Sum
 from decimal import Decimal
 from django.core.validators import MinValueValidator,  MaxValueValidator
 from django.conf import settings
-
-
 
 
 class EmploymentType(StrEnum):
@@ -19,8 +17,6 @@ class EmploymentType(StrEnum):
 class SalaryType(StrEnum):
     FIXED = "fixed"
     HOURLY = "hourly"
-
-
 
 class EmployeeProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -68,24 +64,14 @@ class EmployeeProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
-   
-
-    # def clean(self):
-    #     if self.role and self.role.company != self.company:
-    #         raise ValidationError("Role must belong to the same company")
-
+    
     def clean(self):
-    # Only validate if both role and company are set
      if self.role and self.company_id:
         if self.role.company_id != self.company_id:
             raise ValidationError("Role must belong to the same company")
 
-    def save(self, *args, **kwargs):
-       
+    def save(self, *args, **kwargs):  
         self.full_clean()
-
-        
         previous_role = None
         if self.pk:
             previous_role = (
@@ -97,19 +83,23 @@ class EmployeeProfile(models.Model):
 
         super().save(*args, **kwargs)
 
-        #Sync Django Group (ROLE → GROUP ONLY)
+       
         user = self.user
 
-        # If role changed or removed, clear old groups
+        
         if previous_role != self.role_id:
             user.groups.clear()
 
-        # Add new role group
+        
         if self.role and self.role.group:
             user.groups.add(self.role.group)   
+
+
     @property
     def is_project_manager(self):
         return self.managed_projects.exists()
+    
+
     class Meta:
      constraints = [
         models.CheckConstraint(
@@ -132,9 +122,6 @@ class EmployeeProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.email} ({self.job_title})"
-
-
-
 
 
 
@@ -187,25 +174,36 @@ class Timesheet(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+  
     def clean(self):
-    
-     if self.employee_id and self.project_id:
-        if self.employee.company != self.project.company:
-            raise ValidationError("Employee and Project must belong to the same company.")
+        
+        if self.employee_id and self.project_id:
+            if self.employee.company != self.project.company:
+                raise ValidationError("Employee and Project must belong to the same company.")
 
+        
+        if self.employee_id and self.date:
+            total_hours = (
+                Timesheet.objects
+                .filter(employee_id=self.employee_id, date=self.date)
+                .exclude(pk=self.pk)
+                .aggregate(total=Sum('hours_worked'))['total'] or 0
+            )
+            if total_hours + (self.hours_worked or 0) > 24:
+                raise ValidationError(
+                    f"Cannot log more than 24 hours for {self.employee.user.email} on {self.date}. "
+                    f"Already logged: {total_hours} hours."
+                )
    
+    def save(self, *args, **kwargs):
+        self.full_clean()  
+        super().save(*args, **kwargs)
 
     class Meta:
-        unique_together = ("employee", "project", "date")
         ordering = ["-date"]
 
     def __str__(self):
         return f"{self.employee} - {self.project} - {self.date}"
-
-
-
-
-
 
 
 
@@ -251,7 +249,7 @@ class PayrollRun(models.Model):
         ordering = ["-period_start"]
 
     def clean(self):
-    # Skip validation if company_id not set yet
+
      if not self.company_id:
         return
 
@@ -269,7 +267,7 @@ class PayrollRun(models.Model):
          raise ValidationError("This payroll period overlaps with an existing payroll run.")
 
     def save(self, *args, **kwargs):
-        # Only check old completed payroll if updating
+       
         if self.pk:
             old = PayrollRun.objects.filter(pk=self.pk).first()
             if old and old.status == PayrollRunStatus.COMPLETED:
@@ -283,11 +281,6 @@ class PayrollRun(models.Model):
     def __str__(self):
         return f"{self.company} Payroll ({self.period_start} - {self.period_end})"
     
-
-
-
-
-
 
 
 

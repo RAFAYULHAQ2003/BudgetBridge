@@ -9,7 +9,7 @@ from operations.models import Project
 from django.views import View
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-
+from django.core.exceptions import ValidationError as ModelValidationError
 from workforce.services import generate_payroll
 from workforce.models import PayrollRun, PayrollItem
 
@@ -27,6 +27,7 @@ class MyTimesheetListView(LoginRequiredMixin, ListView):
             return Timesheet.objects.none()
 
 
+
 class TimesheetCreateView(LoginRequiredMixin, CreateView):
     model = Timesheet
     form_class = TimesheetForm
@@ -39,14 +40,31 @@ class TimesheetCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        try:
-            employee = EmployeeProfile.objects.get(user=self.request.user)
-        except EmployeeProfile.DoesNotExist:
-            raise ValidationError("No employee profile linked to your account.")
+        form.instance.employee = self.request.user.employee_profile
+        form.instance.status = "submitted"
 
-        form.instance.employee = employee
-        form.instance.status = "submitted"  # New timesheets are submitted directly
-        return super().form_valid(form)
+        try:
+           
+            return super().form_valid(form)
+        except ModelValidationError as e:
+           
+            form.add_error(None, e)
+           
+            shown_errors = set()
+            for msg in form.non_field_errors():
+                if msg not in shown_errors:
+                    messages.error(self.request, msg)
+                    shown_errors.add(msg)
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        shown_errors = set()
+        for field in form:
+            for error in field.errors:
+                if error not in shown_errors:
+                    messages.error(self.request, f"{field.label}: {error}")
+                    shown_errors.add(error)
+        return super().form_invalid(form)
 
 
 class TimesheetUpdateView(LoginRequiredMixin, UpdateView):
@@ -63,7 +81,7 @@ class TimesheetUpdateView(LoginRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
 
-        # Only allow editing own timesheets that are submitted
+       
         if obj.employee.user != request.user:
             raise PermissionDenied("Cannot edit another user's timesheet.")
         if obj.status != "submitted":
@@ -80,7 +98,7 @@ class TimesheetDeleteView(LoginRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
 
-        # Only allow deleting own timesheets that are submitted
+       
         if obj.employee.user != request.user:
             raise PermissionDenied("Cannot delete another user's timesheet.")
         if obj.status != "submitted":
@@ -95,7 +113,7 @@ class ProjectTimesheetListView(LoginRequiredMixin, ListView):
     context_object_name = "timesheets"
 
     def get_queryset(self):
-        # get project manager object linked to user
+       
         try:
             manager = EmployeeProfile.objects.get(user=self.request.user)
         except EmployeeProfile.DoesNotExist:
@@ -108,11 +126,11 @@ class TimesheetApproveView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         timesheet = get_object_or_404(Timesheet, pk=pk)
 
-        # Only the project manager of this timesheet's project can approve
+     
         if timesheet.project.project_manager.user != request.user:
             raise PermissionDenied("You are not the manager of this project.")
 
-        # Only submitted timesheets can be approved
+       
         if timesheet.status != "submitted":
             raise PermissionDenied("Only submitted timesheets can be approved.")
 
@@ -146,8 +164,8 @@ class PayrollRunCreateView(LoginRequiredMixin, CreateView):
             messages.success(self.request, "Payroll generated successfully!")
             return response
         except ValidationError as e:
-            # Attach the error to the form so it shows in the template
-            form.add_error(None, e)  # None attaches it to the non-field errors
+          
+            form.add_error(None, e) 
             return self.form_invalid(form)
         except Exception as e:
             messages.error(self.request, f"Payroll generation failed: {e}")

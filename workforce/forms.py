@@ -1,6 +1,6 @@
 from django import forms
 from .models import Timesheet, EmployeeProfile
-from operations.models import Project
+from operations.models import EmployeeProject, Project
 from django import forms
 from .models import EmployeeProfile
 
@@ -14,13 +14,13 @@ class EmployeeProfileForm(forms.ModelForm):
         self.current_user = kwargs.pop('current_user', None)
         super().__init__(*args, **kwargs)
 
-        # Hide company field completely for non-superusers
+       
         if self.current_user and not self.current_user.is_superuser:
             if 'company' in self.fields:
-                self.fields.pop('company')  # remove from form entirely
+                self.fields.pop('company')  
 
     def clean(self):
-        # Assign company automatically for non-superusers
+        
         if self.current_user and not self.current_user.is_superuser:
             self.instance.company = self.current_user.company
         return super().clean()
@@ -35,18 +35,33 @@ class TimesheetForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)  # get user from view
+        user = kwargs.pop("user", None)  
         super().__init__(*args, **kwargs)
 
         if user:
             employee = getattr(user, "employee_profile", None)
             if employee:
-                # Filter projects by employee's company
+                
+                assigned_project_ids = EmployeeProject.objects.filter(
+                    employee=employee
+                ).values_list("project_id", flat=True)
                 self.fields["project"].queryset = Project.objects.filter(
-                    company=employee.company
+                    id__in=assigned_project_ids
                 )
             else:
-                # If user has no employee profile, show no projects
                 self.fields["project"].queryset = Project.objects.none()
         else:
             self.fields["project"].queryset = Project.objects.none()
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        try:
+          
+            self.instance.clean()
+        except forms.ValidationError as e:
+            
+            raise forms.ValidationError(
+                e.message_dict.get('__all__', e.messages)
+            )
+        return cleaned_data        

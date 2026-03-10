@@ -2,11 +2,59 @@
 {% block title %}Timesheet{% endblock %}
 
 {% block content %}
-<h2>Timesheet</h2>
+<div class="container mt-4">
+    <h2>Timesheet</h2>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
-</form>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="row g-3 align-items-end">
+        {% csrf_token %}
+
+        <!-- Project Dropdown -->
+        <div class="col-md-4">
+            <label for="id_project" class="form-label">Project</label>
+            {{ form.project }}
+        </div>
+
+        <!-- Date Picker -->
+        <div class="col-md-3">
+            <label for="id_date" class="form-label">Date</label>
+            {{ form.date }}
+        </div>
+
+        <!-- Hours Worked with + / - buttons -->
+        <div class="col-md-2">
+            <label for="id_hours_worked" class="form-label">Hours Worked</label>
+            <div class="input-group">
+                <button type="button" class="btn btn-outline-secondary" onclick="changeHours(-0.5)">-</button>
+                {{ form.hours_worked }}
+                <button type="button" class="btn btn-outline-secondary" onclick="changeHours(0.5)">+</button>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-success w-100">Save</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function changeHours(step) {
+    const input = document.getElementById('id_hours_worked');
+    let current = parseFloat(input.value) || 0;
+    current += step;
+    // Ensure it stays >=0
+    if(current < 0) current = 0;
+    // Round to nearest 0.5
+    input.value = Math.round(current * 2) / 2;
+}
+</script>
 {% endblock %}

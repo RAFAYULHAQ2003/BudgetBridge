@@ -1,8 +1,3 @@
-
-
-
-
-
 from decimal import Decimal, ROUND_HALF_UP
 from django.db import transaction
 from django.db.models import Sum
