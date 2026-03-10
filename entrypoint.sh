@@ -1,13 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-echo "Waiting for database to be ready..."
-while ! pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$POSTGRES_USER" >/dev/null 2>&1; do
-  echo "Database not ready, sleeping 2s..."
-  sleep 2
-done
+echo "Waiting for PostgreSQL..."
+/usr/local/bin/wait-for-it.sh db:5432 --timeout=30
 
-echo "Database ready. Running migrations..."
-python manage.py migrate --noinput
+# Run migrations only on the server container
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Running migrations..."
+    python manage.py migrate
+fi
 
-exec "$@"
+# Start server or Celery depending on arguments
+if [ $# -gt 0 ]; then
+    exec "$@"
+fi

@@ -1,48 +1,31 @@
-# syntax=docker/dockerfile:1
-
-ARG PYTHON_VERSION=3.12.10
-FROM python:${PYTHON_VERSION}-slim as base
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+FROM python:3.12.10-slim
 
 WORKDIR /app
 
-# Create non-privileged user
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    python3-dev \
+    build-essential \
+    postgresql-client \
+    netcat-openbsd \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+RUN pip install --upgrade pip
 
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install PostgreSQL client for pg_isready
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*    
-
-# Copy source code
 COPY . .
 
-# Copy entrypoint as root and make it executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 
-# Switch to non-root user
-USER appuser
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/wait-for-it.sh
 
-# Expose port
 EXPOSE 8000
 
-# Set entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# Default command
-CMD ["gunicorn", "BudgetBridge.wsgi", "--bind=0.0.0.0:8000"]
+CMD ["gunicorn", "BudgetBridge.wsgi:application", "--bind", "0.0.0.0:8000"]
