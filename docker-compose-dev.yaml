@@ -1,0 +1,58 @@
+
+services:
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+
+  server:
+    image: rafaydevsinc/budgetbridge-server:latest
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - RUN_MIGRATIONS=true
+      - DJANGO_SETTINGS_MODULE=BudgetBridge.settings.docker
+      - REDIS_URL=redis://redis:6379/0
+    entrypoint: /usr/local/bin/entrypoint.sh
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  celery:
+    image: rafaydevsinc/budgetbridge-server:latest
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=BudgetBridge.settings.docker
+      - REDIS_URL=redis://redis:6379/0  
+    entrypoint: /usr/local/bin/entrypoint.sh
+    command: ["celery", "-A", "BudgetBridge", "worker", "--loglevel=info"]
+
+volumes:
+  pgdata:
