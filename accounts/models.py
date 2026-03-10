@@ -69,7 +69,6 @@ class Role(models.Model):
 
     @property
     def group(self):
-        """Return the corresponding Django Group."""
         group_name = f"{slugify(self.name)}_{slugify(self.company.name)}"
         return Group.objects.get(name=group_name)
 

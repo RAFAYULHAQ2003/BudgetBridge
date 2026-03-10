@@ -39,51 +39,6 @@ def logout_view(request):
     return redirect("home")
 
 
-# @login_required(login_url="login")
-# def dashboard_view(request):
-#     # Example static values for testing
-#     total_revenue = 125000.50
-#     total_expenses = 43000.75
-#     paid_invoices_count = 42
-#     overdue_count = 3
-
-#     recent_invoices = [
-#         {
-#             "pk": 1,
-#             "number": "INV-001",
-#             "client_name": "Client A",
-#             "amount": 1500.00,
-#             "due_date": date(2026, 2, 10),
-#             "status": "paid",
-#         },
-#         {
-#             "pk": 2,
-#             "number": "INV-002",
-#             "client_name": "Client B",
-#             "amount": 2500.00,
-#             "due_date": date(2026, 2, 12),
-#             "status": "overdue",
-#         },
-#     ]
-
-#     projects_budget = [
-#         {"name": "Website Redesign", "spent": 8000, "budget": 10000, "spent_pct": 80},
-#         {"name": "Mobile App", "spent": 5000, "budget": 15000, "spent_pct": 33},
-#     ]
-
-#     context = {
-#         "total_revenue": total_revenue,
-#         "total_expenses": total_expenses,
-#         "paid_invoices_count": paid_invoices_count,
-#         "overdue_count": overdue_count,
-#         "recent_invoices": recent_invoices,
-#         "projects_budget": projects_budget,
-#     }
-
-#     return render(request, "dashboard.html", context)
-
-
-
 @login_required(login_url="login")
 def dashboard_view(request):
     company = request.user.company

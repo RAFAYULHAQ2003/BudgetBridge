@@ -31,7 +31,7 @@ class CustomUserAdmin(UserAdmin):
 
    
 
-    # ✅ Hide company field for non-superusers
+  
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         if not request.user.is_superuser:
@@ -72,7 +72,7 @@ class RoleAdmin(admin.ModelAdmin):
         }),
     )
 
-    filter_horizontal = ("permissions",)  # Better UI for ManyToManyField
+    filter_horizontal = ("permissions",) 
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -82,6 +82,6 @@ class RoleAdmin(admin.ModelAdmin):
     
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
-        form.instance.get_or_create_permission_group()  # Ensure group is synced after saving role and its permissions
-        form.save()  # Save the role again to trigger any additional logic if needed
+        form.instance.get_or_create_permission_group()  
+        form.save()  
 
