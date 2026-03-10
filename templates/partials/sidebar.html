@@ -84,7 +84,7 @@
     My Payroll
   </a>
 </div>
-
+<!-- {% if perms.workforce.add_payroll_run %}
 <div class="nav-item">
   <a href="{% url 'payroll_run_create' %}" 
      class="nav-link {% if request.resolver_match.url_name == 'payroll_run_create' %}active{% endif %}">
@@ -92,7 +92,16 @@
     Payroll Run
   </a>
 </div>
+{% endif %} -->
 
+{% if perms.workforce.add_payrollrun %}
+<div class="nav-item">
+  <a href="{% url 'payroll_run_create' %}" class="nav-link">
+    <span class="nav-icon">💼</span>
+    Payroll Run
+  </a>
+</div>
+{% endif %}
 
 
     <div class="nav-item">
