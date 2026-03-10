@@ -116,62 +116,141 @@ Once the setup is complete, standard users can perform their tasks through the f
     - [Docker](https://www.docker.com/): For containerizing and running the application.
     - [Docker Compose](https://docs.docker.com/compose/): For defining and running multi-container Docker applications.
 
+
+
 ## How to Run the App
 
 ### Local Setup (without Docker)
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
     ```bash
     git clone <repository-url>
     cd BudgetBridge
     ```
-2.  **Create and activate a virtual environment:**
+
+2. **Create and activate a virtual environment:**
     ```bash
     python -m venv myenv
-    source myenv/bin/activate
+    source myenv/bin/activate  # macOS/Linux
+    # myenv\Scripts\activate    # Windows
     ```
-3.  **Install the dependencies:**
+
+3. **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Set up the database:**
-    - Make sure you have PostgreSQL installed and running.
-    - Create a database and a user for the application.
-    - Create a `.env` file in the root directory and add the following environment variables:
+
+4. **Set up the database (PostgreSQL) & ENV:**
+    - Make sure PostgreSQL is installed and running.
+    - Create a database and user for the app:
+      ```sql
+      CREATE DATABASE budgetbridge_db;
+      CREATE USER budgetbridge_user WITH PASSWORD '12345678';
+      GRANT ALL PRIVILEGES ON DATABASE budgetbridge_db TO budgetbridge_user;
       ```
+    - Create a `.env` file in the root directory with the following:
+      ```env
       SECRET_KEY=<your-secret-key>
       DEBUG=True
-      DB_NAME=<your-db-name>
-      DB_USER=<your-db-user>
-      DB_PASSWORD=<your-db-password>
+      DB_NAME=budgetbridge_db
+      DB_USER=budgetbridge_user
+      DB_PASSWORD=12345678
       DB_HOST=localhost
       DB_PORT=5432
+      REDIS_URL_LOCAL=redis://localhost:6379/0
+
+      # Email
+      EMAIL_HOST_USER=
+      EMAIL_HOST_PASSWORD=
+
       ```
-5.  **Run the migrations:**
+
+5. **Start Redis (if not already running):**
+    ```bash
+    brew services start redis   # macOS
+    # or for Linux:
+    sudo service redis-server start
+    ```
+
+6. **Run Django migrations:**
     ```bash
     python manage.py migrate
     ```
-6.  **Create a superuser:**
+
+7. **Create a superuser:**
     ```bash
     python manage.py createsuperuser
     ```
-7.  **Run the development server:**
+
+8. **Start the Django development server:**
     ```bash
+    export DJANGO_SETTINGS_MODULE=BudgetBridge.settings.local
     python manage.py runserver
     ```
 
+9. **Start Celery worker (for background tasks):**
+    ```bash
+    celery -A BudgetBridge worker --loglevel=info
+    ```
+
+10. **Optional: Clean compiled Python files**
+    ```bash
+    find . -name "*.pyc" -delete
+    find . -name "__pycache__" -delete
+    ```
+
+11. **Access the app:**  
+    Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+
+---
+
 ### Docker Setup
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
     ```bash
     git clone <repository-url>
     cd BudgetBridge
     ```
-2.  **Build and run the containers:**
+
+2. **Ensure Docker and Docker Compose are installed.**
+
+3. **Set up the ENV:**
+      ```
+    - Create a `.env` file in the root directory with the following:
+      ```env
+      SECRET_KEY=<your-secret-key>
+      DEBUG=True
+      POSTGRES_DB=budgetbridge_db
+      POSTGRES_USER=budgetbridge_user
+      POSTGRES_PASSWORD=12345678
+      POSTGRES_HOST=db
+      POSTGRES_PORT=5432
+      REDIS_URL=redis://redis:6379/0
+
+      # Email
+      EMAIL_HOST_USER=
+      EMAIL_HOST_PASSWORD=
+
+      ```
+
+4. **Build and start containers:**
     ```bash
     docker-compose up --build
     ```
-    This will start the Django application and a PostgreSQL database container. The application will be available at `http://localhost:8000`.
 
+    This will start:
+    - Django app on [http://localhost:8000](http://localhost:8000)
+    - PostgreSQL database container
+    - Redis container
+    - Celery worker (if configured in `docker-compose.yml`)
 
+5. **Optional: Run Django management commands inside Docker:**
+    ```bash
+    docker-compose exec web python manage.py migrate
+    docker-compose exec web python manage.py createsuperuser
+    ```
+
+6. **Stop containers:**
+    ```bash
+    docker-compose down
     ```
