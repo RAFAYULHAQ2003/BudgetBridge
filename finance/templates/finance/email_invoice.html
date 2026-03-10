@@ -23,29 +23,38 @@
         <p><strong>Project:</strong> {{ invoice.project.name }}</p>
         <p><strong>Client:</strong> {{ client.name }}</p>
         <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
-        <!-- <p><strong>Due Date:</strong> {{ invoice.due_date }}</p> -->
 
         <table>
             <tr class="heading">
                 <td>Description</td>
-                <td>Quantity</td>
-                <td>Unit Price</td>
-                <td>Total</td>
+                <td>Category</td>
+                <td>Amount</td>
             </tr>
-            
+
+            {% for item in invoice.items.all %}
+            <tr class="item">
+                <td>{{ item.description }}</td>
+                <td>{{ item.category }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No items found.</td>
+            </tr>
+            {% endfor %}
+
             <tr class="total">
-                <td colspan="3">Subtotal:</td>
-                <td>{{ invoice.subtotal }}</td>
+                <td>Subtotal:</td>
+                <td>{{ invoice.subtotal|floatformat:2 }}</td>
             </tr>
             {% if invoice.tax %}
             <tr class="total">
-                <td colspan="3">Tax:</td>
-                <td>{{ invoice.tax }}</td>
+                <td>Tax:</td>
+                <td>{{ invoice.tax|floatformat:2 }}</td>
             </tr>
             {% endif %}
             <tr class="total">
-                <td colspan="3">Total:</td>
-                <td>{{ invoice.total }}</td>
+                <td>Total:</td>
+                <td>{{ invoice.total|floatformat:2 }}</td>
             </tr>
         </table>
 

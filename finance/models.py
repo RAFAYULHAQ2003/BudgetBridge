@@ -148,7 +148,7 @@ class Invoice(models.Model):
         blank=True,
         related_name="invoices"
     )
-
+    
     invoice_no = models.CharField(max_length=50)
     invoice_sent = models.BooleanField(default=False)
     issue_date = models.DateField()
@@ -214,6 +214,7 @@ class InvoiceItem(models.Model):
     )
 
     description = models.TextField()
+    category = models.CharField(max_length=100, blank=True, null=True)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
 

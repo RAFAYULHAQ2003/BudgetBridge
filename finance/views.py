@@ -99,42 +99,6 @@ class ExpenseApprovalListView(ListView):
 
 
 
-# class ExpenseApprovalUpdateView(UpdateView):
-#     model = Expense
-#     fields = ["status"]
-#     template_name = "finance/expense_approval_update.html"
-#     success_url = reverse_lazy("expense_approval_list")
-
-#     def form_valid(self, form):
-#         expense = form.save(commit=False)
-#         expense.approved_by = self.request.user
-#         expense.approved_at = timezone.now()
-#         expense.save()
-
-#         # Send invoice email if approved
-#         if expense.status == ExpenseStatus.APPROVED and expense.project.client.email:
-#             # Get the invoice linked to this expense's project
-#             invoice = Invoice.objects.filter(project=expense.project).last()
-#             if invoice:
-#                 # Render HTML email
-#                 html_content = render_to_string("finance/email_invoice.html", {
-#                     "invoice": invoice,
-#                     "invoice_items": invoice.items.all(),  # assuming related_name="items"
-#                     "company": expense.company,
-#                     "client": expense.project.client,
-#                 })
-
-#                 subject = f"Invoice #{invoice.invoice_no} for Project: {expense.project.name}"
-#                 from_email = "noreply@budgetbridge.com"
-#                 to_email = [expense.project.client.email]
-
-#                 email = EmailMultiAlternatives(subject, "", from_email, to_email)
-#                 email.attach_alternative(html_content, "text/html")
-#                 email.send(fail_silently=True)
-
-#         messages.success(self.request, f"Expense {expense.status} successfully.")
-#         return super().form_valid(form)
-
 
 class ExpenseApprovalUpdateView(UpdateView):
     model = Expense
@@ -165,6 +129,7 @@ class ExpenseApprovalUpdateView(UpdateView):
             InvoiceItem.objects.create(
                 invoice=invoice,
                 description=expense.description or "Project Expense",
+                category=expense.category.name if expense.category else " ",
                 quantity=1,
                 unit_price=expense.amount,
             )
@@ -194,7 +159,7 @@ def report_view(request):
     paid_invoices_count = Invoice.objects.filter(status="paid").count()
     overdue_count = Invoice.objects.filter(status="overdue").count()
 
-    # --- Project Budgets ---
+    
     projects = Project.objects.all()
     projects_budget = []
     for project in projects:
@@ -235,7 +200,7 @@ def report_view(request):
 
 def company_invoices_view(request, company_id):
     company = get_object_or_404(Company, id=company_id)
-    project_id = request.GET.get("project")  # optional filter
+    project_id = request.GET.get("project") 
     projects = company.projects.all()
 
     if project_id:
@@ -280,8 +245,6 @@ class ProjectInvoiceListView(ListView):
         company_id = self.kwargs.get("company_id")
         context["company"] = get_object_or_404(Project, company_id=company_id).company
         context["projects"] = Project.objects.filter(company_id=company_id)
-
-        # Keep track of selected project
         context["selected_project_id"] = self.kwargs.get("project_id", "")
 
         return context
