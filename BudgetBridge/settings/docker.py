@@ -1,7 +1,7 @@
 # BudgetBridge/settings/docker.py
 from .base import *
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # Database for Docker
