@@ -7,6 +7,11 @@ class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
         fields = ["project", "category", "amount", "description", "expense_date"]
+        widgets = {
+            "expense_date": forms.DateInput(
+                attrs={"type": "date"}  # this will render an HTML5 date picker
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user") 
