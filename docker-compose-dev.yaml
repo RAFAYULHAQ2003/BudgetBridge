@@ -28,8 +28,6 @@ services:
     depends_on:
       - db
       - redis
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
     environment:
@@ -48,8 +46,6 @@ services:
     depends_on:
       - db
       - redis
-    volumes:
-      - .:/app
     environment:
       - DJANGO_SETTINGS_MODULE=BudgetBridge.settings.docker
       - REDIS_URL=redis://redis:6379/0  
