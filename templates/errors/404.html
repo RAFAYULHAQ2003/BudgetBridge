@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="error-page text-center py-16">
+    <h1 class="text-6xl font-bold text-red-600 mb-4">404</h1>
+    <h2 class="text-3xl font-semibold mb-4">Oops! Page Not Found</h2>
+    <p class="text-gray-600 mb-6">We couldn’t find the page you were looking for.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back Home</a>
+</div>
+{% endblock %}

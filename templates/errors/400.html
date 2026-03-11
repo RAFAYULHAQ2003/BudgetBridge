@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Bad Request{% endblock %}
+
+{% block content %}
+<div class="error-page text-center py-16">
+    <h1 class="text-6xl font-bold text-red-600 mb-4">400</h1>
+    <h2 class="text-3xl font-semibold mb-4">Bad Request</h2>
+    <p class="text-gray-600 mb-6">
+        Oops! Your request cannot be processed. It might be malformed or contain invalid data.
+    </p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back Home</a>
+</div>
+{% endblock %}

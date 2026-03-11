@@ -21,6 +21,7 @@ from django.views.generic.base import RedirectView
 from django.conf import settings 
 from django.conf.urls.static import static
 from accounts.views import landing_view
+from django.conf.urls import handler404, handler500, handler403, handler400
 
 
 urlpatterns = [
@@ -34,6 +35,12 @@ urlpatterns = [
     path("finance/", include("finance.urls")),
    
 ]
+
+
+handler404 = "BudgetBridge.views.handler404"
+handler500 = "BudgetBridge.views.handler500"
+handler403 = "BudgetBridge.views.handler403"
+handler400 = "BudgetBridge.views.handler400"
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
