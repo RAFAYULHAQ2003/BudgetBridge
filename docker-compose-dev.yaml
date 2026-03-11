@@ -21,6 +21,7 @@ services:
 
   server:
     image: rafaydevsinc/budgetbridge-server:latest
+    pull_policy: always
     restart: always
     env_file:
       - .env
@@ -40,6 +41,7 @@ services:
 
   celery:
     image: rafaydevsinc/budgetbridge-server:latest
+    pull_policy: always
     restart: always
     env_file:
       - .env
