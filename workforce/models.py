@@ -129,6 +129,10 @@ class TimesheetStatus(models.TextChoices):
     SUBMITTED = "submitted", "Submitted"
     APPROVED = "approved", "Approved"
 
+class TimesheetPaymentStatus(models.TextChoices):
+    UNPAID = "unpaid", "Unpaid"
+    PAID = "paid", "Paid"
+
 
 class Timesheet(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -168,6 +172,12 @@ class Timesheet(models.Model):
         null=True,
         blank=True,
         related_name="approved_timesheets"
+    )
+
+    payed_status = models.CharField(
+        max_length=20,
+        choices=TimesheetPaymentStatus.choices,
+        default=TimesheetPaymentStatus.UNPAID
     )
 
     approved_at = models.DateTimeField(null=True, blank=True)
@@ -245,7 +255,7 @@ class PayrollRun(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("company", "period_start", "period_end")
+        # unique_together = ("company", "period_start", "period_end")
         ordering = ["-period_start"]
 
     def clean(self):
@@ -256,15 +266,15 @@ class PayrollRun(models.Model):
      if self.period_start > self.period_end:
         raise ValidationError("Period start must be before period end.")
 
-     overlapping = PayrollRun.objects.filter(
-         company_id=self.company_id,
-         period_start__lte=self.period_end,
-         period_end__gte=self.period_start,
-     )
-     if self.pk:
-         overlapping = overlapping.exclude(pk=self.pk)
-     if overlapping.exists():
-         raise ValidationError("This payroll period overlaps with an existing payroll run.")
+    #  overlapping = PayrollRun.objects.filter(
+    #      company_id=self.company_id,
+    #      period_start__lte=self.period_end,
+    #      period_end__gte=self.period_start,
+    #  )
+    #  if self.pk:
+    #      overlapping = overlapping.exclude(pk=self.pk)
+    #  if overlapping.exists():
+    #      raise ValidationError("This payroll period overlaps with an existing payroll run.")
 
     def save(self, *args, **kwargs):
        
