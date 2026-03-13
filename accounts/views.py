@@ -6,6 +6,9 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.contrib.auth import logout
 from django.shortcuts import redirect, render
+from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from accounts.models import User
 
 
 def landing_view(request):
@@ -53,3 +56,10 @@ def dashboard_view(request):
         "active_projects_count": active_projects.count(),
     }
     return render(request, "dashboard.html", context)
+
+class ProfileView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "profile.html"
+
+    def get_object(self):
+        return self.request.user

@@ -2,46 +2,36 @@
 
 <header class="topbar" role="banner">
 
-  <!-- Mobile hamburger -->
+
   <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
     ☰
   </button>
 
-  <!-- Breadcrumb / Page context -->
-  <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
-    <a href="{% url 'dashboard' %}">BUDGET </a>
-    <span class="crumb-sep">›</span>
+  
+  <div class="topbar-breadcrumb" style="flex:2; font-weight:900; color:var(--text);">
+    {% if request.user.is_authenticated %}
+      {{ request.user.company.name|default:"Company"|upper }}
+    {% else %}
+      Welcome
+    {% endif %}
+  </div>
 
-    {% block breadcrumb %}
-      {# Override this block in child templates, e.g.:  #}
-      {# {% block breadcrumb %}                          #}
-      {#   <a href="...">Projects</a>                    #}
-      {#   <span class="crumb-sep">›</span>              #}
-      {#   <span class="crumb-current">My Project</span> #}
-      {# {% endblock %}                                  #}
-      <span class="crumb-current">{% block page_name %}Dashboard{% endblock %}</span>
-    {% endblock %}
-  </nav>
-
-  <!-- Right-side actions -->
+ 
   <div class="topbar-actions">
 
 
     <div class="topbar-divider"></div>
 
-    <!-- User role chip -->
-    <span class="badge badge-primary" style="font-size:11px;">
-      {{ request.user.profile.get_role_display|default:"User" }}
-    </span>
-
-    <!-- Avatar / profile dropdown trigger -->
-    <div class="topbar-avatar" title="{{ request.user.get_full_name|default:request.user.username }}">
-      {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-    </div>
+    {% if request.user.is_authenticated %}
+<form method="POST" action="{% url 'logout' %}" style="display:inline;">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger d-flex items-center gap-2">
+    <span>Sign Out</span>
+  </button>
+</form>
+{% endif %}
 
   </div>
 
 </header>
 
-<!-- Hidden global search bar (revealed by JS if desired) -->
-<div id="globalSearch" style="display:none;"></div>

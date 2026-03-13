@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">My Profile</h1>
+      <p class="page-subtitle">Your account and employment details</p>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="max-width:860px; align-items:start;">
+
+  <!-- Identity Card -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <p class="card-title">Account</p>
+        <p class="card-subtitle">Personal information</p>
+      </div>
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;">
+        {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+      </div>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <p class="stat-label">Full Name</p>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-top:2px;">
+          {{ request.user.get_full_name }}
+        </p>
+      </div>
+      <div class="divider" style="margin:0;"></div>
+      <div>
+        <p class="stat-label">Email Address</p>
+        <p style="font-size:13.5px;color:var(--text);margin-top:2px;">{{ request.user.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employment Card -->
+  {% if request.user.employee_profile %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <p class="card-title">Employment</p>
+        <p class="card-subtitle">Role and compensation</p>
+      </div>
+      <span class="badge badge-success">● Active</span>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <p class="stat-label">Job Title</p>
+          <p style="font-size:13.5px;font-weight:600;color:var(--text);margin-top:2px;">
+            {{ request.user.employee_profile.job_title }}
+          </p>
+        </div>
+        <div>
+          <p class="stat-label">Joining Date</p>
+          <p style="font-size:13.5px;color:var(--text);margin-top:2px;">
+            {{ request.user.employee_profile.joining_date }}
+          </p>
+        </div>
+      </div>
+
+      <div class="divider" style="margin:0;"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <p class="stat-label">Employment Type</p>
+          <span class="badge badge-primary" style="margin-top:4px;display:inline-flex;">
+            {{ request.user.employee_profile.employment_type|capfirst }}
+          </span>
+        </div>
+        <div>
+          <p class="stat-label">Salary Type</p>
+          <span class="badge badge-neutral" style="margin-top:4px;display:inline-flex;">
+            {{ request.user.employee_profile.salary_type|capfirst }}
+          </span>
+        </div>
+      </div>
+
+      <div class="divider" style="margin:0;"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <p class="stat-label">Base Salary</p>
+          <p class="stat-value" style="font-size:18px;margin-top:2px;">
+            {{ request.user.employee_profile.base_salary }}
+          </p>
+        </div>
+        <div>
+          <p class="stat-label">Hourly Rate</p>
+          <p class="stat-value" style="font-size:18px;margin-top:2px;">
+            {{ request.user.employee_profile.hourly_rate }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

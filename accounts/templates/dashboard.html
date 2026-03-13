@@ -5,99 +5,144 @@
 {% block page_name %}Dashboard{% endblock %}
 
 {% block page_header %}
-<div class="page-header bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-lg shadow-md mb-8">
-    <h1 class="text-3xl font-bold">Welcome back, {{ request.user.first_name|default:"there" }} 👋</h1>
-    <p class="mt-2 text-lg opacity-90">Here’s a quick overview of your company and projects.</p>
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Welcome back, {{ request.user.first_name|default:"there" }} 👋</h1>
+      <p class="page-subtitle">Here's a quick overview of your company and projects.</p>
+    </div>
+    
+  </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<!-- Top Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Company Info -->
-    <div class="bg-white shadow-md rounded-lg p-5 border-l-4 border-blue-500 hover:scale-105 transition-transform">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Company</h3>
-        <p class="text-gray-600 mb-1"><span class="font-medium">Name:</span> {{ company.name }}</p>
-        <p class="text-gray-600 mb-1"><span class="font-medium">Country:</span> {{ company.country }}</p>
-        <p class="text-gray-600 mb-1"><span class="font-medium">Currency:</span> {{ company.currency }}</p>
-    </div>
 
-    <!-- Logged-in Employee -->
-    <div class="bg-white shadow-md rounded-lg p-5 border-l-4 border-green-500 hover:scale-105 transition-transform">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Your Profile</h3>
-        <p class="text-gray-600 mb-1"><span class="font-medium">Name:</span> {{ request.user.first_name }} {{ request.user.last_name }}</p>
-        <p class="text-gray-600 mb-1"><span class="font-medium">Position:</span> {{ request.user.employee_profile.job_title }}</p>
-        <p class="text-gray-600"><span class="font-medium">Role:</span> {{ request.user.employee_profile.role.name }}</p>
-    </div>
+<!-- Stat Cards -->
+<div class="grid grid-4 mb-4">
 
-    <!-- Employees Count -->
-    <div class="bg-white shadow-md rounded-lg p-5 border-l-4 border-purple-500 hover:scale-105 transition-transform">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Active Employees</h3>
-        <p class="text-2xl font-bold text-gray-800">{{ active_employees_count }}</p>
+  <div class="stat-card">
+    <div class="stat-icon blue">🏢</div>
+    <div class="stat-info">
+      <p class="stat-label">Company</p>
+      <p style="font-size:14px;font-weight:700;color:var(--text);margin-top:2px;">{{ company.name }}</p>
+      <p class="text-muted text-small mt-1">{{ company.country }} · {{ company.currency }}</p>
     </div>
+  </div>
 
-    <!-- Projects Count -->
-    <div class="bg-white shadow-md rounded-lg p-5 border-l-4 border-yellow-500 hover:scale-105 transition-transform">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Active Projects</h3>
-        <p class="text-2xl font-bold text-gray-800">{{ active_projects_count }}</p>
+  <div class="stat-card">
+    <div class="stat-icon green">👤</div>
+    <div class="stat-info">
+      <p class="stat-label">Your Profile</p>
+      <p style="font-size:14px;font-weight:700;color:var(--text);margin-top:2px;">
+        {{ request.user.first_name }} {{ request.user.last_name }}
+      </p>
+      <p class="text-muted text-small mt-1">{{ request.user.employee_profile.job_title }}</p>
     </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon cyan">👥</div>
+    <div class="stat-info">
+      <p class="stat-label">Active Employees</p>
+      <p class="stat-value">{{ active_employees_count }}</p>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon orange">📁</div>
+    <div class="stat-info">
+      <p class="stat-label">Active Projects</p>
+      <p class="stat-value">{{ active_projects_count }}</p>
+    </div>
+  </div>
+
 </div>
 
-<!-- Active Employees Table -->
-<div class="mb-8">
-    <h2 class="text-2xl font-bold mb-4 text-gray-700">Active Employees</h2>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-3 px-4 text-left text-gray-600 font-medium">Name</th>
-                    <th class="py-3 px-4 text-left text-gray-600 font-medium">Job Title</th>
-                    <th class="py-3 px-4 text-left text-gray-600 font-medium">Role</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for emp in active_employees %}
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4">{{ emp.user.first_name }} {{ emp.user.last_name }}</td>
-                    <td class="py-3 px-4">{{ emp.job_title }}</td>
-                    <td class="py-3 px-4">{{ emp.role.name }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="py-3 px-4 text-center text-gray-500">No active employees found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<!-- Employees Table -->
+<div class="card mb-4">
+  <div class="card-header">
+    <div>
+      <p class="card-title">Active Employees</p>
+      <p class="card-subtitle">{{ active_employees_count }} employee{{ active_employees_count|pluralize }} currently active</p>
     </div>
+  </div>
+  <div class="table-wrapper" style="border:none;border-radius:0 0 var(--radius) var(--radius);">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Job Title</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in active_employees %}
+        <tr>
+          <td>
+            <div class="d-flex items-center gap-2">
+              <div style="width:30px;height:30px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
+                {{ emp.user.first_name|first }}{{ emp.user.last_name|first }}
+              </div>
+              <span style="font-weight:500;">{{ emp.user.first_name }} {{ emp.user.last_name }}</span>
+            </div>
+          </td>
+          <td class="td-muted">{{ emp.job_title }}</td>
+          <td><span class="badge badge-primary">{{ emp.role.name }}</span></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted" style="padding:32px;">No active employees found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<!-- Active Projects Table -->
-<div class="mb-8">
-    <h2 class="text-2xl font-bold mb-4 text-gray-700">Active Projects</h2>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-3 px-4 text-left text-gray-600 font-medium">Project Name</th>
-                    <th class="py-3 px-4 text-left text-gray-600 font-medium">Project Manager</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for project in active_projects %}
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4">{{ project.name }}</td>
-                    <td class="py-3 px-4">{{ project.project_manager.user.get_full_name|default:"No Manager" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="py-3 px-4 text-center text-gray-500">No active projects found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<!-- Projects Table -->
+<div class="card mb-4">
+  <div class="card-header">
+    <div>
+      <p class="card-title">Active Projects</p>
+      <p class="card-subtitle">{{ active_projects_count }} project{{ active_projects_count|pluralize }} in progress</p>
     </div>
+  </div>
+  <div class="table-wrapper" style="border:none;border-radius:0 0 var(--radius) var(--radius);">
+    <table>
+      <thead>
+        <tr>
+          <th>Project Name</th>
+          <th>Project Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in active_projects %}
+        <tr>
+          <td style="font-weight:500;">{{ project.name }}</td>
+          <td>
+            {% with mgr=project.project_manager.user.get_full_name %}
+            {% if mgr %}
+              <div class="d-flex items-center gap-2">
+                <div style="width:30px;height:30px;border-radius:50%;background:var(--success-bg);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
+                  {{ mgr|first }}
+                </div>
+                {{ mgr }}
+              </div>
+            {% else %}
+              <span class="badge badge-neutral">No Manager</span>
+            {% endif %}
+            {% endwith %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="text-center text-muted" style="padding:32px;">No active projects found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-
 
 {% endblock %}
