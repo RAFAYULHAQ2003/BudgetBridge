@@ -2,59 +2,249 @@
 {% block title %}Timesheet{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Timesheet</h2>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+<style>
+  .stepper {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .stepper:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+  }
+  .stepper-btn {
+    background: var(--surface-2);
+    border: none;
+    border-right: 1px solid var(--border);
+    padding: 0 13px;
+    font-size: 16px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+    font-family: inherit;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .stepper-btn:last-child {
+    border-right: none;
+    border-left: 1px solid var(--border);
+  }
+  .stepper-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .stepper input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    background: transparent;
+    text-align: center;
+  }
+  .stepper input::-webkit-inner-spin-button,
+  .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-    <form method="post" class="row g-3 align-items-end">
-        {% csrf_token %}
 
-        <!-- Project Dropdown -->
-        <div class="col-md-4">
-            <label for="id_project" class="form-label">Project</label>
-            {{ form.project }}
+  .form-card { animation: fadeUp .28s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hours-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 5px;
+  }
+  .hours-hint-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    opacity: .45;
+  }
+
+  .session-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    display: inline-block;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .4; }
+  }
+</style>
+
+
+{% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        <span class="alert-icon">
+          {% if message.tags == 'success' %}✓{% elif message.tags == 'error' or message.tags == 'danger' %}✕{% elif message.tags == 'warning' %}⚠{% else %}ℹ{% endif %}
+        </span>
+        <div class="alert-body">
+          <div class="alert-text">{{ message }}</div>
+        </div>
+        <button class="alert-close" onclick="dismissAlert(this)" aria-label="Close">✕</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Timesheet</h1>
+      <p class="page-subtitle">Log your hours against a project for a specific date.</p>
+    </div>
+    <div class="d-flex items-center gap-2">
+      <span class="badge badge-primary mono" id="live-date">—</span>
+      <a href="{% url 'my_timesheets' %}" class="btn btn-ghost">
+      ← Back to Timesheets
+    </a>
+    </div>
+  </div>
+</div>
+
+
+<div class="card form-card" style="max-width: 620px;">
+
+  
+
+  <div class="card-body">
+    <form method="post" id="timesheet-form">
+      {% csrf_token %}
+
+     
+      <div class="form-group">
+        <label class="form-label" for="id_project">
+          Project <span class="required">*</span>
+        </label>
+        {{ form.project }}
+      </div>
+
+
+      <div class="grid grid-2" style="gap: 16px;">
+
+        <div class="form-group">
+          <label class="form-label" for="id_date">
+            Date <span class="required">*</span>
+          </label>
+          {{ form.date }}
         </div>
 
-        <!-- Date Picker -->
-        <div class="col-md-3">
-            <label for="id_date" class="form-label">Date</label>
-            {{ form.date }}
+        <div class="form-group">
+          <label class="form-label" for="id_hours_worked">
+            Hours Worked <span class="required">*</span>
+          </label>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" onclick="changeHours(-0.5)" aria-label="Decrease">−</button>
+            {{ form.hours_worked }}
+            <button type="button" class="stepper-btn" onclick="changeHours(0.5)" aria-label="Increase">+</button>
+          </div>
+          <div class="hours-hint">
+            <span class="hours-hint-dot"></span>
+            <span id="hours-label">0 hrs · 0 min</span>
+          </div>
         </div>
 
-        <!-- Hours Worked with + / - buttons -->
-        <div class="col-md-2">
-            <label for="id_hours_worked" class="form-label">Hours Worked</label>
-            <div class="input-group">
-                <button type="button" class="btn btn-outline-secondary" onclick="changeHours(-0.5)">-</button>
-                {{ form.hours_worked }}
-                <button type="button" class="btn btn-outline-secondary" onclick="changeHours(0.5)">+</button>
-            </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-success w-100">Save</button>
-        </div>
+      </div>
     </form>
+  </div>
+
+  <div class="card-footer">
+    <div class="d-flex items-center gap-3" style="justify-content: flex-end;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="resetForm()">
+  Reset
+</button>
+      <button type="submit" form="timesheet-form" class="btn btn-primary">
+        Save Entry →
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <script>
-function changeHours(step) {
+
+  (function() {
+    const el = document.getElementById('live-date');
+    if (el) el.textContent = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  })();
+
+ 
+  document.querySelectorAll(
+    '#timesheet-form select, #timesheet-form input[type="date"], #timesheet-form input[type="text"]'
+  ).forEach(el => el.classList.add('form-control'));
+
+
+  function changeHours(step) {
     const input = document.getElementById('id_hours_worked');
-    let current = parseFloat(input.value) || 0;
-    current += step;
-    // Ensure it stays >=0
-    if(current < 0) current = 0;
-    // Round to nearest 0.5
-    input.value = Math.round(current * 2) / 2;
+    const val = Math.max(0, Math.round(((parseFloat(input.value) || 0) + step) * 2) / 2);
+    input.value = val;
+    updateLabel(val);
+  }
+
+  function updateLabel(val) {
+    const label = document.getElementById('hours-label');
+    if (!label) return;
+    const h = Math.floor(val), m = (val % 1) * 60;
+    label.textContent = `${h} hr${h !== 1 ? 's' : ''} · ${m} min`;
+  }
+
+  const hoursInput = document.getElementById('id_hours_worked');
+  if (hoursInput) {
+    hoursInput.addEventListener('input', () => updateLabel(parseFloat(hoursInput.value) || 0));
+    updateLabel(parseFloat(hoursInput.value) || 0);
+  }
+
+  
+  function dismissAlert(btn) {
+    const el = btn.closest('.alert');
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 320);
+  }
+
+ function resetForm() {
+  const form = document.getElementById('timesheet-form');
+
+ 
+  const projectInput = document.getElementById('id_project');
+  const dateInput = document.getElementById('id_date');
+  const hoursInput = document.getElementById('id_hours_worked');
+
+  if (projectInput) projectInput.selectedIndex = 0; 
+  if (dateInput) dateInput.value = '';            
+  if (hoursInput) hoursInput.value = 0;           
+
+  
+  updateLabel(0);
+
+ 
 }
+  updateLabel(val);
+  document.querySelectorAll('.alert').forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('fade-out');
+      setTimeout(() => el.remove(), 320);
+    }, 5000 + i * 400);
+  });
 </script>
+
 {% endblock %}
