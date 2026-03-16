@@ -138,6 +138,8 @@ class Invoice(models.Model):
     client = models.ForeignKey(
         "operations.Client",
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="invoices"
     )
 

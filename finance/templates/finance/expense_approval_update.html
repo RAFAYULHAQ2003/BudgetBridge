@@ -1,17 +1,92 @@
 {% extends "base.html" %}
+{% block title %}Approve Expense{% endblock %}
+
 {% block content %}
-<h2>Approve Expense</h2>
 
-<p>Employee: {{ object.employee }}</p>
-<p>Project: {{ object.project }}</p>
-<p>Category: {{ object.category }}</p>
-<p>Amount: {{ object.amount }} {{ object.currency }}</p>
-<p>Date: {{ object.expense_date }}</p>
+<style>
+  .form-card { animation: fadeUp .28s ease both; max-width: 620px; margin: auto; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-<form method="post">
-  {% csrf_token %}
-  <label for="id_status">Status:</label>
-  {{ form.status }}
-  <button type="submit">Update</button>
-</form>
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-weight: 600; margin-bottom: 5px; }
+  .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; }
+
+  .card-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 10px; }
+
+  .messages-container { margin-bottom: 16px; }
+  .alert { display: flex; align-items: center; padding: 10px; border-radius: var(--radius-sm); margin-bottom: 8px; }
+  .alert-success { background: #e6f4ea; color: #1a6adb; }
+  .alert-error, .alert-danger { background: #fcebea; color: #d32f2f; }
+  .alert-warning { background: #fff4e5; color: #f57c00; }
+  .alert-icon { margin-right: 8px; font-weight: bold; }
+  .alert-close { background: none; border: none; cursor: pointer; margin-left: auto; }
+</style>
+
+{% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        <span class="alert-icon">
+          {% if message.tags == 'success' %}✓{% elif message.tags == 'error' or message.tags == 'danger' %}✕{% elif message.tags == 'warning' %}⚠{% else %}ℹ{% endif %}
+        </span>
+        <div class="alert-body">{{ message }}</div>
+        <button class="alert-close" onclick="dismissAlert(this)" aria-label="Close">✕</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Approve Expense</h1>
+      <p class="page-subtitle">Review and update the expense status.</p>
+    </div>
+    <div>
+      <a href="{% url 'expense_approval_list' %}" class="btn btn-ghost">← Back to List</a>
+    </div>
+  </div>
+</div>
+
+<div class="card form-card">
+  <div class="card-body">
+
+    <p><strong>Employee:</strong> {{ object.employee }}</p>
+    <p><strong>Project:</strong> {{ object.project }}</p>
+    <p><strong>Category:</strong> {{ object.category }}</p>
+    <p><strong>Description:</strong> {{ object.description }}</p>
+    <p><strong>Amount:</strong> {{ object.amount }} {{ object.currency }}</p>
+    <p><strong>Date:</strong> {{ object.expense_date }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.status.id_for_label }}">Status:</label>
+        {{ form.status }}
+      </div>
+
+      <div class="card-footer">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-ghost" onclick="window.history.back()">Cancel</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function dismissAlert(btn) {
+    const el = btn.closest('.alert');
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 320);
+  }
+
+  document.querySelectorAll('.alert').forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('fade-out');
+      setTimeout(() => el.remove(), 320);
+    }, 5000 + i * 400);
+  });
+</script>
+
 {% endblock %}

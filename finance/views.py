@@ -6,7 +6,7 @@ from django.contrib import messages
 from decimal import Decimal
 from django.views.generic import UpdateView
 from .models import Expense, Invoice, InvoiceItem
-from .forms import ExpenseForm
+from .forms import ExpenseForm, CompanyExpenseForm
 from django.utils import timezone
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
@@ -21,6 +21,7 @@ from django.views import View
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from .tasks import send_invoice_email
+from .models import Expense, ExpenseStatus
 
 class ExpenseCreateView(CreateView):
     model = Expense
@@ -78,12 +79,14 @@ class ExpenseListView(ListView):
 
     def get_queryset(self):
         return Expense.objects.filter(
-            company=self.request.user.company
+            company=self.request.user.company,
+        ).exclude(
+            project__isnull=True
         ).select_related("employee", "project", "category")
     
 
 
-from .models import Expense, ExpenseStatus
+
 
 class ExpenseApprovalListView(ListView):
     model = Expense
@@ -149,7 +152,7 @@ def report_view(request):
     Single page dashboard for Budget Control & Reporting
     """
 
-    # --- Financial KPIs ---
+  
     total_revenue = Invoice.objects.filter(status__in=["paid", "partial"]).aggregate(
         total=Sum("total_amount")
     )["total"] or 0
@@ -248,4 +251,110 @@ class ProjectInvoiceListView(ListView):
         context["selected_project_id"] = self.kwargs.get("project_id", "")
 
         return context
+
+class CompanyExpenseCreateView(CreateView):
+    model = Expense
+    form_class = CompanyExpenseForm
+    template_name = "finance/company_expense_form.html"
+    success_url = reverse_lazy("company-expense-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        expense = form.save(commit=False)
+        expense.company = self.request.user.company
+        expense.employee = self.request.user.employee_profile
+        expense.save()
+
+       
+        invoice = Invoice.objects.create(
+            company=expense.company,
+            client=None,
+            project=None,
+            invoice_no=f"COMP-{timezone.now().timestamp()}",
+            issue_date=timezone.now().date(),
+            due_date=timezone.now().date(),
+            subtotal=expense.amount,
+            created_by=self.request.user,
+        )
+
+        InvoiceItem.objects.create(
+            invoice=invoice,
+            description=expense.description or "Company Expense",
+            category=expense.category.name if expense.category else " ",
+            quantity=1,
+            unit_price=expense.amount,
+        )
+
+        invoice.calculate_totals()
+        invoice.save()
+
+        messages.success(self.request, "Company expense added and internal invoice created.")
+        return super().form_valid(form)
+
+class CompanyExpenseListView(ListView):
+    model = Expense
+    template_name = "finance/company_expense_list.html"
+    context_object_name = "expenses"
+
+    def get_queryset(self):
+        return Expense.objects.filter(
+            company=self.request.user.company,
+            project__isnull=True
+        ).select_related("employee", "category").order_by("-expense_date")
     
+
+class CompanyExpenseApprovalListView(ListView):
+    model = Expense
+    template_name = "finance/company_expense_approval_list.html"
+    context_object_name = "expenses"
+   
+
+    def get_queryset(self):
+        return Expense.objects.filter(
+            project__isnull=True, 
+            status=ExpenseStatus.SUBMITTED
+        ).select_related("employee", "category")
+    
+class CompanyExpenseApprovalUpdateView(UpdateView):
+    model = Expense
+    fields = ["status"]
+    template_name = "finance/company_expense_approval_update.html"
+    success_url = reverse_lazy("company-expense-approval-list")
+    
+
+    def form_valid(self, form):
+        expense = form.save(commit=False)
+        expense.approved_by = self.request.user
+        expense.approved_at = timezone.now()
+        expense.save()
+
+     
+        invoice = Invoice.objects.create(
+            company=expense.company,
+            client=None,
+            project=None,
+            invoice_no=f"COMP-{timezone.now().timestamp()}",
+            issue_date=timezone.now().date(),
+            due_date=timezone.now().date(),
+            subtotal=expense.amount,
+            created_by=self.request.user,
+        )
+
+        InvoiceItem.objects.create(
+            invoice=invoice,
+            description=expense.description or "Company Expense",
+            category=expense.category.name if expense.category else "",
+            quantity=1,
+            unit_price=expense.amount,
+        )
+
+        invoice.calculate_totals()
+        invoice.save()
+
+        messages.success(self.request, f"Company Expense {expense.status} successfully.")
+        return super().form_valid(form)
+
