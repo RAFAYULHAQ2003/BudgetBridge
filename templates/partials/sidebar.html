@@ -2,10 +2,6 @@
 
 <aside class="sidebar" id="sidebar">
 
-  <!-- Brand -->
- 
-
-
    <div class="sidebar-brand">
     
     <div class="brand-name">
@@ -16,10 +12,10 @@
 
 
 
-  <!-- Navigation -->
+
   <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
 
-    <!-- Main -->
+
     <div class="nav-section">Main</div>
 
     <div class="nav-item">
@@ -30,7 +26,7 @@
       </a>
     </div>
 
-    <!-- Projects -->
+   
     <div class="nav-section">Projects</div>
 
     <div class="nav-item">
@@ -42,10 +38,8 @@
 
 
    
-    <!-- Finance -->
+  
     <div class="nav-section">Finance</div>
-
-   
 
     <div class="nav-item">
       <a href="#" class="nav-link">
@@ -55,7 +49,7 @@
       </a>
     </div>
 
-    <div class="nav-item">
+    <!-- <div class="nav-item">
   <a href="{% url 'expense-list' %}" 
      class="nav-link {% if request.resolver_match.url_name == 'expense-list' %}active{% endif %}">
     <span class="nav-icon">🧾</span>
@@ -64,18 +58,52 @@
       <span class="nav-badge">{{ pending_expenses_count }}</span>
     {% endif %}
   </a>
+</div> -->
+
+
+<div class="nav-item">
+  <a href="javascript:void(0);" 
+     class="nav-link {% if request.resolver_match.url_name in 'expense-list company-expense project-expense' %}active{% endif %}" 
+     onclick="toggleExpenseMenu()">
+    <span class="nav-icon">🧾</span>
+    Expenses
+    {% if pending_expenses_count %}
+      <span class="nav-badge">{{ pending_expenses_count }}</span>
+    {% endif %}
+    <span class="nav-arrow">▼</span>
+  </a>
+
+  
+  <div id="expense-submenu" class="nav-submenu" style="display: none; padding-left: 16px; margin-top: 4px;">
+    <a href="{% url 'company-expense-list' %}" 
+       class="nav-link {% if request.resolver_match.url_name == 'company-expense' %}active{% endif %}">
+      Company Expense
+    </a>
+    <a href="{% url 'expense-list' %}" 
+       class="nav-link {% if request.resolver_match.url_name == 'project-expense' %}active{% endif %}">
+      Project Expense
+    </a>
+  </div>
 </div>
 
 
 {% if request.user.employee_profile.is_project_manager %}
 <div class="nav-item">
   <a href="{% url 'expense_approval_list' %}" class="nav-link {% if request.resolver_match.url_name == 'expense_approval_list' %}active{% endif %}">
-    ✔️ Approve Expenses
+    ✔️ Approve Project Expenses
   </a>
 </div>
 {% endif %}
 
-    <!-- HR & Payroll -->
+
+{% if perms.workforce.add_payrollrun %}
+<div class="nav-item">
+  <a href="{% url 'company-expense-approval-list' %}" class="nav-link {% if request.resolver_match.url_name == 'company-expense-approval-list' %}active{% endif %}">
+    ✔️ Approve Company Expenses
+  </a>
+</div>
+{% endif %}
+    
     <div class="nav-section">HR & Payroll</div>
 <div class="nav-item">
   <a href="{% url 'my_payroll' %}" 
@@ -84,20 +112,12 @@
     My Payroll
   </a>
 </div>
-<!-- {% if perms.workforce.add_payroll_run %}
-<div class="nav-item">
-  <a href="{% url 'payroll_run_create' %}" 
-     class="nav-link {% if request.resolver_match.url_name == 'payroll_run_create' %}active{% endif %}">
-    <span class="nav-icon">💼</span>
-    Payroll Run
-  </a>
-</div>
-{% endif %} -->
+
 
 {% if perms.workforce.add_payrollrun %}
 <div class="nav-item">
   <a href="{% url 'payroll_run_create' %}" class="nav-link">
-    <span class="nav-icon">💼</span>
+    <span class="nav-icon">📄</span>
     Payroll Run
   </a>
 </div>
@@ -117,13 +137,12 @@
 <div class="nav-item">
   <a href="{% url 'project_timesheets' %}" 
      class="nav-link {% if request.resolver_match.url_name == 'project_timesheets' %}active{% endif %}">
-    <span class="nav-icon">⏱️</span>
+    <span class="nav-icon">✅</span>
     Time Tracking Approvals
   </a>
 </div>
 
 
-    <!-- Reports -->
     <div class="nav-section">Reports</div>
 
     <div class="nav-item">
@@ -160,3 +179,13 @@
 </div>
 
 </aside>
+
+
+
+<script>
+function toggleExpenseMenu() {
+  const submenu = document.getElementById('expense-submenu');
+  if (!submenu) return;
+  submenu.style.display = (submenu.style.display === 'none' || submenu.style.display === '') ? 'block' : 'none';
+}
+</script>
