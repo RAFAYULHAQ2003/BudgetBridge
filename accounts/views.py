@@ -10,6 +10,8 @@ from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import User
 
+from django.contrib.auth.forms import AuthenticationForm
+
 
 def landing_view(request):
     return render(request, "landing.html")
@@ -20,18 +22,15 @@ def login_view(request):
         return redirect("dashboard")
 
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
             return redirect("dashboard")
-        else:
-            messages.error(request, "Invalid username or password")
+    else:
+        form = AuthenticationForm(request)
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"form": form})
+
 
 
 

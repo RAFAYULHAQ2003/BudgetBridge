@@ -8,7 +8,7 @@
 <div class="page-header">
   <div class="page-header-row">
     <div>
-      <h1 class="page-title">Welcome back, {{ request.user.first_name|default:"there" }} 👋</h1>
+      <h1 class="page-title">Welcome back, {{ request.user.username|default:"there" }} 👋</h1>
       <p class="page-subtitle">Here's a quick overview of your company and projects.</p>
     </div>
     
@@ -18,7 +18,6 @@
 
 {% block content %}
 
-<!-- Stat Cards -->
 <div class="grid grid-4 mb-4">
 
   <div class="stat-card">
@@ -59,7 +58,7 @@
 
 </div>
 
-<!-- Employees Table -->
+
 <div class="card mb-4">
   <div class="card-header">
     <div>
@@ -100,7 +99,7 @@
   </div>
 </div>
 
-<!-- Projects Table -->
+
 <div class="card mb-4">
   <div class="card-header">
     <div>

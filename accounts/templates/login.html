@@ -8,53 +8,53 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center font-sans">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen flex items-center justify-center font-sans">
 
-  <div class="w-full max-w-sm mx-auto px-4">
+  <div class="w-full max-w-md mx-auto px-4">
 
 
-    <div class="flex items-center gap-4">
-      <img src="{% static 'favicon-copy.png' %}" alt="Logo" class="h-24 w-24 object-contain">
+    <div class="flex items-center gap-4 mb-6 justify-center sm:justify-start">
+      <img src="{% static 'favicon-copy.png' %}" alt="Logo" class="h-20 w-20 sm:h-24 sm:w-24 object-contain">
       <div class="flex flex-col">
-        <span class="text-2xl font-black tracking-tight text-blue-800 leading-none">
-            BUDGET<span class="text-blue-600">BRIDGE</span>
+        <span class="text-2xl sm:text-3xl font-black tracking-tight text-blue-900 leading-none">
+          BUDGET<span class="text-blue-600">BRIDGE</span>
         </span>
         <p class="text-sm text-gray-500 mt-1">
-            Sign in to your account
+          Sign in to your account
         </p>
-     </div>
+      </div>
     </div>
 
-    <!-- Card -->
-    <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+    
+    <div class="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-xl shadow-blue-100/40">
 
-      <!-- Non-field errors -->
+     
       {% if form.non_field_errors %}
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-5">
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
           {{ form.non_field_errors|join:", " }}
         </div>
       {% endif %}
 
-      <!-- Django messages -->
 
-     {% if user.is_authenticated %} 
-       {% if messages %}
-         {% for message in messages %}
-           <div class="text-sm rounded-lg px-4 py-3 mb-5 border
-              {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700
-              {% else %}bg-green-50 border-green-200 text-green-700{% endif %}">
-             {{ message }}
-           </div>
-         {% endfor %}
-       {% endif %}
-      {% endif %} 
+      {% if user.is_authenticated %}
+        {% if messages %}
+          {% for message in messages %}
+    <div class="text-sm rounded-xl px-4 py-3 mb-5 border
+      {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700
+      {% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-700
+      {% else %}bg-green-50 border-green-200 text-green-700{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+        {% endif %}
+      {% endif %}
 
-      <form method="POST" action="{% url 'login' %}">
+      <form method="POST" action="{% url 'login' %}" id="loginForm" novalidate>
         {% csrf_token %}
 
         <!-- Username -->
-        <div class="mb-4">
-          <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1.5">
+        <div class="mb-5">
+          <label for="id_username" class="block text-sm font-semibold text-gray-700 mb-1.5">
             Username
           </label>
           <input
@@ -64,48 +64,224 @@
             value="{{ form.username.value|default:'' }}"
             placeholder="Enter your username"
             autocomplete="username"
-            class="w-full px-3.5 py-2.5 border rounded-lg text-sm text-gray-800 placeholder-gray-400 outline-none transition
+            required
+            minlength="3"
+            maxlength="150"
+            class="w-full px-4 py-3 border rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition duration-200
               {% if form.username.errors %}border-red-400 focus:ring-2 focus:ring-red-200
               {% else %}border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100{% endif %}"
           />
           {% if form.username.errors %}
             <p class="text-xs text-red-500 mt-1">{{ form.username.errors|join:", " }}</p>
           {% endif %}
+          <p id="usernameError" class="text-xs text-red-500 mt-1 hidden"></p>
         </div>
 
-        <!-- Password -->
-        <div class="mb-6">
+  
+        <div class="mb-2">
+          <label for="id_password" class="block text-sm font-semibold text-gray-700 mb-1.5">
+            Password
+          </label>
+
+          <div class="relative">
+            <input
+              type="password"
+              id="id_password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              minlength="6"
+              maxlength="128"
+              class="w-full px-4 py-3 pr-12 border rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition duration-200
+                {% if form.password.errors %}border-red-400 focus:ring-2 focus:ring-red-200
+                {% else %}border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100{% endif %}"
+            />
+
           
-          <input
-            type="password"
-            id="id_password"
-            name="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            class="w-full px-3.5 py-2.5 border rounded-lg text-sm text-gray-800 placeholder-gray-400 outline-none transition
-              {% if form.password.errors %}border-red-400 focus:ring-2 focus:ring-red-200
-              {% else %}border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100{% endif %}"
-          />
+            <button
+              type="button"
+              id="togglePassword"
+              class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-400 hover:text-gray-600 transition"
+              tabindex="-1"
+            >
+              <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+
+              <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95M6.223 6.223A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M15 12a3 3 0 00-3-3m0 0a2.99 2.99 0 00-1.242.268M9.88 9.88A3 3 0 0012 15a2.99 2.99 0 002.121-.879M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+
           {% if form.password.errors %}
             <p class="text-xs text-red-500 mt-1">{{ form.password.errors|join:", " }}</p>
           {% endif %}
+          <p id="passwordError" class="text-xs text-red-500 mt-1 hidden"></p>
+          <p id="capsLockWarning" class="text-xs text-amber-600 mt-1 hidden">
+            Caps Lock is ON
+          </p>
         </div>
 
-        <!-- Submit -->
-        <button type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">
-          Sign In
-        </button>
+        
 
+       
+        <button
+          type="submit"
+          id="submitBtn"
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold text-sm py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg id="spinner" class="hidden h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span id="submitText">Sign In</span>
+        </button>
       </form>
     </div>
 
-    <!-- Back to home -->
-    <p class="text-center text-sm text-gray-400 mt-6">
-      <a href="{% url 'home' %}" class="hover:text-gray-600 transition-colors">← Back to home</a>
+  
+    <p class="text-center text-sm text-gray-500 mt-6">
+      <a href="{% url 'home' %}" class="hover:text-gray-700 transition-colors font-medium">← Back to home</a>
     </p>
 
   </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("id_username");
+    const passwordInput = document.getElementById("id_password");
+
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+    const capsLockWarning = document.getElementById("capsLockWarning");
+
+    const submitBtn = document.getElementById("submitBtn");
+    const submitText = document.getElementById("submitText");
+    const spinner = document.getElementById("spinner");
+
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const eyeOpen = document.getElementById("eyeOpen");
+    const eyeClosed = document.getElementById("eyeClosed");
+
+    function showError(input, errorElement, message) {
+      input.classList.remove("border-gray-300", "focus:border-blue-500", "focus:ring-blue-100");
+      input.classList.add("border-red-400", "focus:ring-2", "focus:ring-red-200");
+      errorElement.textContent = message;
+      errorElement.classList.remove("hidden");
+    }
+
+    function clearError(input, errorElement) {
+      input.classList.remove("border-red-400", "focus:ring-red-200");
+      input.classList.add("border-gray-300", "focus:border-blue-500", "focus:ring-2", "focus:ring-blue-100");
+      errorElement.textContent = "";
+      errorElement.classList.add("hidden");
+    }
+
+    function validateUsername() {
+      const value = usernameInput.value.trim();
+
+      if (!value) {
+        showError(usernameInput, usernameError, "Username is required.");
+        return false;
+      }
+
+      if (value.length < 3) {
+        showError(usernameInput, usernameError, "Username must be at least 3 characters.");
+        return false;
+      }
+
+      if (value.length > 150) {
+        showError(usernameInput, usernameError, "Username must be less than 150 characters.");
+        return false;
+      }
+
+      clearError(usernameInput, usernameError);
+      return true;
+    }
+
+    function validatePassword() {
+      const value = passwordInput.value;
+
+      if (!value.trim()) {
+        showError(passwordInput, passwordError, "Password is required.");
+        return false;
+      }
+
+      if (value.length < 6) {
+        showError(passwordInput, passwordError, "Password must be at least 6 characters.");
+        return false;
+      }
+
+      if (value.length > 128) {
+        showError(passwordInput, passwordError, "Password is too long.");
+        return false;
+      }
+
+      clearError(passwordInput, passwordError);
+      return true;
+    }
+
+    function validateForm() {
+      const isUsernameValid = validateUsername();
+      const isPasswordValid = validatePassword();
+      return isUsernameValid && isPasswordValid;
+    }
+
+    // Live validation
+    usernameInput.addEventListener("input", validateUsername);
+    passwordInput.addEventListener("input", validatePassword);
+
+    // Password show/hide
+    togglePasswordBtn.addEventListener("click", function () {
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+
+      eyeOpen.classList.toggle("hidden", isPassword);
+      eyeClosed.classList.toggle("hidden", !isPassword);
+    });
+
+    // Caps Lock detection
+    passwordInput.addEventListener("keyup", function (e) {
+      if (e.getModifierState && e.getModifierState("CapsLock")) {
+        capsLockWarning.classList.remove("hidden");
+      } else {
+        capsLockWarning.classList.add("hidden");
+      }
+    });
+
+    passwordInput.addEventListener("keydown", function (e) {
+      if (e.getModifierState && e.getModifierState("CapsLock")) {
+        capsLockWarning.classList.remove("hidden");
+      } else {
+        capsLockWarning.classList.add("hidden");
+      }
+    });
+
+    passwordInput.addEventListener("blur", function () {
+      capsLockWarning.classList.add("hidden");
+    });
+
+    // Submit with loading state
+    loginForm.addEventListener("submit", function (e) {
+      if (!validateForm()) {
+        e.preventDefault();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      spinner.classList.remove("hidden");
+      submitText.textContent = "Signing In...";
+    });
+  </script>
 
 </body>
 </html>
