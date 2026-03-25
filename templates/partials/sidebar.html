@@ -29,37 +29,30 @@
    
     <div class="nav-section">Projects</div>
 
-    <div class="nav-item">
+ 
+
+{% if request.user.company %}
+<div class="nav-item">
   <a href="{% url 'company_projects' request.user.company.id %}" class="nav-link">
     <span class="nav-icon">📁</span>
     Projects
   </a>
 </div>
-
-
+{% endif %}
    
   
     <div class="nav-section">Finance</div>
 
+  
+
     <div class="nav-item">
-      <a href="#" class="nav-link">
-        <span class="nav-icon">💳</span>
-        Payments
-        {# {% url 'payments:list' %} commented for now #}
-      </a>
-    </div>
-
-    <!-- <div class="nav-item">
-  <a href="{% url 'expense-list' %}" 
-     class="nav-link {% if request.resolver_match.url_name == 'expense-list' %}active{% endif %}">
-    <span class="nav-icon">🧾</span>
-    Expenses
-    {% if pending_expenses_count %}
-      <span class="nav-badge">{{ pending_expenses_count }}</span>
-    {% endif %}
+  <a href="{% url 'project-payment-invoice-list' %}" class="nav-link">
+    <span class="nav-icon">💳</span>
+    Payments
   </a>
-</div> -->
+</div>
 
+   
 
 <div class="nav-item">
   <a href="javascript:void(0);" 
@@ -100,6 +93,15 @@
 <div class="nav-item">
   <a href="{% url 'company-expense-approval-list' %}" class="nav-link {% if request.resolver_match.url_name == 'company-expense-approval-list' %}active{% endif %}">
     ✔️ Approve Company Expenses
+  </a>
+</div>
+{% endif %}
+
+{% if perms.workforce.add_payrollrun%}
+<div class="nav-item">
+  <a href="{% url 'accountant-expense-list' %}" 
+     class="nav-link {% if request.resolver_match.url_name == 'accountant-expense-list' %}active{% endif %}">
+    🗂️ View All Company Expenses
   </a>
 </div>
 {% endif %}
