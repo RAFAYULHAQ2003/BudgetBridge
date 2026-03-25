@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice {{ invoice.invoice_no }}</title>
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 90%;
+      margin: 30px auto;
+      padding: 20px;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h1, h2 {
+      color: #222;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      margin: 0;
+    }
+
+    /* Company & Client Info */
+    .info {
+      margin-bottom: 30px;
+    }
+    .info p {
+      margin: 3px 0;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table thead {
+      background-color: #f5f5f5;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    table th {
+      background-color: #f0f0f0;
+    }
+
+    /* Totals */
+    .totals {
+      text-align: right;
+      margin-top: 20px;
+    }
+    .totals p {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Invoice #{{ invoice.invoice_no }}</h1>
+      <div>
+        <p><strong>Issue Date:</strong> {{ invoice.issue_date|default:"Not Set" }}</p>
+        <p><strong>Due Date:</strong> {{ invoice.due_date|default:"Not Set" }}</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <p><strong>Company:</strong> {{ invoice.company.name|default:"N/A" }}</p>
+      <p><strong>Client:</strong> {{ invoice.client.name|default:"N/A" }}</p>
+      <p><strong>Project:</strong> {{ invoice.project.name|default:"Company Expense" }}</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in invoice.items.all %}
+        <tr>
+          <td>{{ item.description }}</td>
+          <td>{{ item.category|default:"-" }}</td>
+          <td>{{ item.quantity|default:"0" }}</td>
+          <td>${{ item.unit_price|floatformat:2 }}</td>
+          <td>${{ item.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <p><strong>Subtotal:</strong> ${{ invoice.subtotal|floatformat:2 }}</p>
+      <p><strong>Total:</strong> ${{ invoice.total_amount|floatformat:2 }}</p>
+    </div>
+
+    <div class="footer">
+      © 2026 BUDGETBRIDGE — Software House Finance Management
+    </div>
+  </div>
+</body>
+</html>

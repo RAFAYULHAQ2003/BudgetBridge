@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Invoice {{ invoice.invoice_no }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Invoice #{{ invoice.invoice_no }}</h2>
+  <p><strong>Project:</strong> {{ invoice.project.name }}</p>
+  <p><strong>Client:</strong> {{ invoice.project.client.name }}</p>
+  <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+  <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+  <p><strong>Status:</strong> {{ invoice.get_status_display }}</p>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Tax</th>
+        <th>Discount</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ invoice.amount }}</td>
+        <td>{{ invoice.tax_amount }}</td>
+        <td>{{ invoice.discount_amount }}</td>
+        <td>{{ invoice.total_amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if invoice.payment %}
+    <h5>Payment Details</h5>
+    <p>Status: {{ invoice.payment.get_status_display }}</p>
+    <p>Method: {{ invoice.payment.get_payment_method_display }}</p>
+    <p>Amount Paid: {{ invoice.payment.amount }}</p>
+    <p>Transaction Ref: {{ invoice.payment.transaction_ref }}</p>
+  {% endif %}
+
+  <a href="{% url 'client-payment-dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

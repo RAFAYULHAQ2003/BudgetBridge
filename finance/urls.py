@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CompanyExpenseCreateView, CompanyExpenseListView, ExpenseCreateView, ExpenseListView, ExpenseApprovalListView, ExpenseApprovalUpdateView, report_view, ProjectInvoiceListView, company_invoices_view, select_project_invoices,CompanyExpenseApprovalListView, CompanyExpenseApprovalUpdateView
+from .views import CompanyExpenseCreateView, CompanyExpenseListView, ExpenseCreateView, ExpenseListView, ExpenseApprovalListView, ExpenseApprovalUpdateView, PaymentCreateView,ProjectPaymentInvoiceCreateView, ProjectPaymentInvoiceListView, report_view, ProjectInvoiceListView, company_invoices_view, select_project_invoices,CompanyExpenseApprovalListView, CompanyExpenseApprovalUpdateView, CompanyExpenseAccountantListView, ExpenseInvoiceView, ExpenseInvoiceDownloadView
 from . import views
 urlpatterns = [
     path("expenses/", ExpenseListView.as_view(), name="expense-list"),
@@ -21,6 +21,35 @@ urlpatterns = [
         "company-expense/approve/<uuid:pk>/",
         CompanyExpenseApprovalUpdateView.as_view(),
         name="company-expense-approve",
+    ),
+   
+    path(
+        "accountant/expenses/",
+        views.CompanyExpenseAccountantListView.as_view(),
+        name="accountant-expense-list",
+    ),
+
+   
+    path(
+        "accountant/expense/<uuid:expense_id>/invoice/",
+        views.ExpenseInvoiceView.as_view(),
+        name="expense-invoice-view",
+    ),
+
+    
+    path(
+        "accountant/expense/<uuid:expense_id>/invoice/generate/",
+        views.ExpenseInvoiceDownloadView.as_view(),
+        name="expense-invoice-download",
+    ),
+
+    path("project-payments/", ProjectPaymentInvoiceListView.as_view(), name="project-payment-invoice-list"),
+    path("project-payments/add/", ProjectPaymentInvoiceCreateView.as_view(), name="project-payment-invoice-add"),
+    path("project-payments/<uuid:pk>/payment/", PaymentCreateView.as_view(), name="project-payment-add"),
+    path(
+        "project-payment-invoice/<uuid:invoice_id>/payments/",
+        views.project_invoice_payments,
+        name="project-invoice-payments"
     ),
 
 ]

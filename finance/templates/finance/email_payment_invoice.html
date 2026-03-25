@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .invoice-box {
+            max-width: 700px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0,0,0,.15);
+        }
+        table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+        table td { padding: 5px; vertical-align: top; }
+        .total-row td { border-top: 2px solid #eee; font-weight: bold; }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <h2>Invoice: {{ invoice.invoice_no }}</h2>
+        <p><strong>Project:</strong> {{ invoice.project.name }}</p>
+        <p><strong>Client:</strong> {{ client.name }}</p>
+        <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+        <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+
+        <table>
+            <tr class="heading">
+                <td>Description</td>
+                <td class="right">Amount</td>
+            </tr>
+
+            <tr class="item">
+                <td>{{ invoice.description|default:"Project Payment" }}</td>
+                <td class="right">{{ invoice.amount|floatformat:2 }}</td>
+            </tr>
+
+            <tr class="total-row">
+                <td class="right">Subtotal:</td>
+                <td class="right">{{ invoice.amount|floatformat:2 }}</td>
+            </tr>
+
+            {% if invoice.tax_amount > 0 %}
+            <tr>
+                <td class="right">Tax ({{ invoice.tax_percentage }}%):</td>
+                <td class="right">{{ invoice.tax_amount|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+
+            {% if invoice.discount_amount > 0 %}
+            <tr>
+                <td class="right">Discount:</td>
+                <td class="right">-{{ invoice.discount_amount|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+
+            <tr class="total-row">
+                <td class="right">Total:</td>
+                <td class="right">{{ invoice.total_amount|floatformat:2 }}</td>
+            </tr>
+
+            <tr>
+                <td class="right">Amount Paid:</td>
+                <td class="right">{{ invoice.amount_paid|floatformat:2 }}</td>
+            </tr>
+
+            <tr>
+                <td class="right">Balance Due:</td>
+                <td class="right">{{ invoice.balance_due|floatformat:2 }}</td>
+            </tr>
+        </table>
+
+        <p>Thank you for your business!</p>
+    </div>
+</body>
+</html>

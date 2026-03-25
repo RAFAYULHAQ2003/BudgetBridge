@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Project Payment Invoices</h2>
+<a href="{% url 'project-payment-invoice-add' %}" class="btn btn-primary">+ Add Invoice</a>
+
+<table class="table mt-3">
+  <thead>
+    <tr>
+      <th>Invoice No</th>
+      <th>Project</th>
+      <th>Amount</th>
+      <th>Amount Paid</th>
+      <th>Balance Due</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in invoices %}
+    <tr>
+      <td>{{ invoice.invoice_no }}</td>
+      <td>{{ invoice.project.name }}</td>
+      <td>{{ invoice.total_amount }}</td>
+      <td>{{ invoice.amount_paid }}</td>
+      <td>{{ invoice.balance_due }}</td>
+      <td>{{ invoice.status }}</td>
+      <td>
+        <a href="{% url 'project-invoice-payments' invoice.id %}" class="btn btn-sm btn-info">View Payments</a>
+        <a href="{% url 'project-payment-add' invoice.id %}" class="btn btn-sm btn-success">Add Payment</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No invoices yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

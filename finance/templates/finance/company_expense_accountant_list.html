@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}All Company Expenses (Accountant){% endblock %}
+{% block page_name %}All Company Expenses (Accountant){% endblock %}
+
+{% block content %}
+<div width: 100%;>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">All Expenses (Project + Company)</h3>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Employee</th>
+            <th>Project</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr>
+  <td>{{ expense.expense_date }}</td>
+  <td>{{ expense.employee.user.get_full_name }}</td>
+  <td>
+    {% if expense.project %}
+      {{ expense.project.name }}
+    {% else %}
+      Company
+    {% endif %}
+  </td>
+  <td>{{ expense.category.name }}</td>
+  <td>{{ expense.description }}</td>
+  <td>${{ expense.amount }}</td>
+  <td>
+    <a href="{% url 'expense-invoice-view' expense.id %}" class="btn btn-ghost btn-sm">
+      See Invoice
+    </a>
+    <a href="{% url 'expense-invoice-download' expense.id %}" class="btn btn-primary btn-sm">
+      Download Invoice
+    </a>
+  </td>
+</tr>
+          {% empty %}
+          <tr><td colspan="7">No expenses found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Add Project Payment Invoice{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Add Project Payment Invoice</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Generate Invoice & Email</button>
+    <a href="{% url 'client-payment-dashboard' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
