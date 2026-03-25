@@ -65,4 +65,22 @@
 
 </div>
 
+{% if request.user.employee_profile and project.project_manager and request.user.employee_profile == project.project_manager %}
+
+<h4>Assign Employee to Project</h4>
+<form method="post" class="mb-3">
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-md-6">
+            {{ employee_project_form.employee.label_tag }}
+            {{ employee_project_form.employee }}
+        </div>
+        <div class="col-md-6">
+            {{ employee_project_form.role_in_project.label_tag }}
+            {{ employee_project_form.role_in_project }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Assign Employee</button>
+</form>
+{% endif %}
 {% endblock %}

@@ -5,6 +5,16 @@
 
     <h2>{{ company.name }} - Projects</h2>
 
+
+{% if request.user.employee_profile.is_project_manager %}  
+     <div class="mb-3">
+
+    <a href="{% url 'project_add' %}" class="btn btn-primary" >
+       + Add Project
+    </a>
+</div>
+{% endif %}
+
     <div class="card">
         <table class="table">
             <thead>

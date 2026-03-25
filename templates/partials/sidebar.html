@@ -44,14 +44,14 @@
     <div class="nav-section">Finance</div>
 
   
-
+{% if perms.workforce.add_payrollrun %}
     <div class="nav-item">
   <a href="{% url 'project-payment-invoice-list' %}" class="nav-link">
     <span class="nav-icon">💳</span>
     Payments
   </a>
 </div>
-
+{% endif %}
    
 
 <div class="nav-item">

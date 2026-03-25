@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project{% endblock %}
+{% block page_name %}Create Project{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Create Project</h1>
+      <p class="page-subtitle">Add a new project along with client details</p>
+    </div>
+    <a href="{% url 'company_projects' company.pk %}" class="btn btn-ghost">
+      ← Back to Projects
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px;">
+  <div class="card">
+
+   
+
+    <div class="card-body">
+      <form method="post" id="project-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+          <div class="alert-inline alert-danger" style="margin-bottom:16px;">
+            ⚠️ {{ error }}
+          </div>
+          {% endfor %}
+        {% endif %}
+
+        <h4>Project Details</h4>
+        <div class="form-group">
+          {{ form.name.label_tag }} <span class="required">*</span>
+          {{ form.name }}
+          {% for error in form.name.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.description.label_tag }}
+          {{ form.description }}
+          {% for error in form.description.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.project_manager.label_tag }} <span class="required">*</span>
+          {{ form.project_manager }}
+          {% for error in form.project_manager.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="grid grid-2" style="gap:16px;">
+          <div class="form-group">
+            {{ form.budget.label_tag }} <span class="required">*</span>
+            {{ form.budget }}
+            {% for error in form.budget.errors %}
+              <p class="invalid-feedback">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+            {% for error in form.status.errors %}
+              <p class="invalid-feedback">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap:16px;">
+          <div class="form-group">
+            {{ form.start_date.label_tag }} <span class="required">*</span>
+            {{ form.start_date }}
+            {% for error in form.start_date.errors %}
+              <p class="invalid-feedback">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            {{ form.end_date.label_tag }}
+            {{ form.end_date }}
+            {% for error in form.end_date.errors %}
+              <p class="invalid-feedback">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h4>Client Details</h4>
+        <div class="form-group">
+          {{ form.client_name.label_tag }} <span class="required">*</span>
+          {{ form.client_name }}
+          {% for error in form.client_name.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.client_email.label_tag }} <span class="required">*</span>
+          {{ form.client_email }}
+          {% for error in form.client_email.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.client_phone.label_tag }}
+          {{ form.client_phone }}
+          {% for error in form.client_phone.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          {{ form.client_address.label_tag }}
+          {{ form.client_address }}
+          {% for error in form.client_address.errors %}
+            <p class="invalid-feedback">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+      </form>
+    </div>
+
+    <div class="card-footer" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <p class="text-muted text-small">
+        <span class="required">*</span> Required fields
+      </p>
+      <div class="d-flex gap-2">
+        <a href="{% url 'company_projects' company.pk %}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" form="project-form" class="btn btn-primary">
+          💾 Create Project
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
