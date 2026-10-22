@@ -1,256 +1,309 @@
 # BudgetBridge
 
-BudgetBridge is a comprehensive, Django-based financial management platform designed to streamline project budgeting, expense tracking, and workforce management for companies. It provides a multi-user environment with role-based access control, allowing for efficient collaboration between administrators, project managers, and employees.
+BudgetBridge is a Django-based financial management platform for project budgeting, expense tracking and workforce management. It supports multiple companies, each with its own users, roles and data, and provides role-based access for administrators, project managers, accountants and employees.
+
+## Table of Contents
+
+- [Features](#features)
+- [Roles](#roles)
+- [Workflow](#workflow)
+- [Data Model](#data-model)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Environment Variables](#environment-variables)
+  - [Local Setup](#local-setup)
+  - [Docker Setup](#docker-setup)
 
 ## Features
 
-- **Multi-Company Architecture:** Each instance of BudgetBridge can manage multiple companies, with data isolated between them.
-- **Role-Based Access Control (RBAC):**  Define custom roles and permissions for users within a company, ensuring that users can only access the features and data relevant to their position.
-- **Project Management:** Create and manage projects, assign project managers, and track project status and budget.
-- **Financial Management:**
-    - **Expense Tracking:** Employees can submit expenses, which can then be approved or rejected by authorized users.
-    - **Invoicing:** Create and manage invoices for clients, track their status (draft, sent, paid), and record payments.
-- **Workforce Management:**
-    - **Employee Profiles:** Maintain detailed profiles for each employee, including their role, job title, and salary information.
-    - **Timesheets:** Employees can submit timesheets for the hours they've worked on specific projects.
-    - **Payroll Processing:** Run payroll for a given period, calculating gross and net pay for each employee.
-- **Admin Panel:** A user-friendly admin panel (powered by `django-jazzmin` and `django-unfold`) for managing all aspects of the application.
+- **Multi-company architecture:** Manage multiple companies from a single instance, with data isolated between them.
+- **Role-based access control (RBAC):** Define custom roles and permissions per company so users only see the features and data relevant to their position.
+- **Project management:** Create projects, assign project managers and employees, and track status and budget.
+- **Financial management:**
+  - **Expense tracking:** Employees submit expenses; authorised users approve or reject them.
+  - **Company expenses:** Accountants record and approve company-level expenses.
+  - **Invoicing:** Create invoices for clients, track their status and email project payment invoices directly from the application.
+  - **Payments:** Record payments with status tracking (pending, confirmed, failed) and multiple payment methods.
+- **Workforce management:**
+  - **Employee profiles:** Store role, job title, employment type and salary information.
+  - **Timesheets:** Employees log hours worked on specific projects.
+  - **Payroll:** Run payroll for a period, calculating gross and net pay for each employee.
+- **Background processing:** Celery and Redis handle asynchronous tasks such as sending emails.
 
 ## Roles
 
 ### Admin Panel
 
-The Django admin panel provides a comprehensive interface for superusers to manage all data in the application, including:
+The Django admin panel gives superusers and company administrators full control over application data:
 
-- **User and Role Management:** Create and manage users, roles, and permissions.
-- **Company and Project Management:**  Set up new companies, create projects, and manage project details.
-- **Financial Oversight:**  View and manage all expenses, invoices, and payments across all companies.
-- **Workforce Administration:** Manage employee profiles, timesheets, and payroll runs.
+- **Users and roles:** Create users, roles and permissions.
+- **Companies and projects:** Set up companies, create projects and manage project details.
+- **Financial oversight:** View and manage expenses, invoices and payments.
+- **Workforce administration:** Manage employee profiles, timesheets and payroll runs.
 
-### Frontend (MVT)
+### Web Application
 
-The frontend of the application is built using Django's Model-View-Template (MVT) architecture. This provides a user-friendly interface for non-admin users to interact with the system.
+Non-admin users work through the main web application, built with Django's Model-View-Template (MVT) architecture:
 
-- **Employees:** Can submit expenses and timesheets, and view their own payroll information.
-- **Project Managers:** Can manage the projects they are assigned to, approve expenses and timesheets for their projects, and view project-related financial data.
-- **Finance Managers/Accountants:** Can manage invoices, record payments, and run payroll.
+| Role | Capabilities |
+|---|---|
+| **Employee** | Submit expenses and timesheets; view personal details and payroll information. |
+| **Project Manager** | Create projects, assign employees, and approve or reject timesheets and expenses for their projects. |
+| **Accountant / Finance Manager** | Manage invoices, record payments, approve company expenses and run payroll. |
 
 ## Workflow
 
-The application follows a structured workflow, with different roles performing specific tasks.
-
 ### 1. Superadmin Setup
 
-1.  **Create a Superadmin:** The first step is to create a superadmin account using the `createsuperuser` management command.
-2.  **Log in to Admin Panel:** The superadmin logs into the Django admin panel.
-3.  **Create a Company:** The superadmin creates a new company and adds its details.
-4.  **Create a Company Admin:** The superadmin creates a new user who will be the administrator for the company.
-5.  **Assign Permissions:** The superadmin creates a `company_admin` role with the necessary permissions and assigns this role to the company admin user.
+1. Create a superadmin account with `python manage.py createsuperuser`.
+2. Log in to the Django admin panel.
+3. Create a company and enter its details.
+4. Create a user to act as the company administrator.
+5. Create a `company_admin` role with the required permissions and assign it to that user.
 
-### 2. Company Admin Setup (from Admin Panel)
+### 2. Company Admin Setup (Admin Panel)
 
-1.  **Log in to Admin Panel:** The company admin logs into the Django admin panel.
-2.  **Add Users and Employees:** The company admin adds new users and creates `EmployeeProfile`s for them.
-3.  **Create Custom Roles:** The company admin creates custom roles with specific permissions for different types of employees within the company.
-4.  **Assign Roles:** The company admin assigns these roles to the employees.
-5.  **Create Projects and Clients:** The company admin creates new projects, adds clients for those projects, and assigns a project manager to each project.
-6.  **Assign Employees to Projects:** The company admin assigns employees to the relevant projects.
+1. Log in to the Django admin panel.
+2. Add users and create an `EmployeeProfile` for each one.
+3. Create custom roles with the permissions each type of employee needs.
+4. Assign roles to employees.
+5. Create clients and projects, and assign a project manager to each project.
+6. Assign employees to projects.
 
-### 3. Standard User Actions (from Frontend)
+### 3. Day-to-Day Use (Web Application)
 
-Once the setup is complete, standard users can perform their tasks through the frontend of the application.
+- **Employees** log in, record timesheets, submit expenses and view their payroll information.
+- **Project managers** review and approve or reject timesheets and expenses for their projects.
+- **Accountants** generate payroll for a period, manage invoices and record payments.
 
--   **Employees:**
-    -   Log in to the application.
-    -   Add timesheets for the hours they've worked.
-    -   Submit expenses.
-    -   View their personal details and payroll information.
--   **Project Managers:**
-    -   Log in to the application.
-    -   Review and approve or reject timesheets submitted by employees for their projects.
-    -   Review and approve or reject expenses submitted for their projects.
--   **Accountants/Finance Managers:**
-    -   Log in to the application.
-    -   Generate payroll for the company for a given period.
-    -   Manage invoices and record payments.
-
-## Models and Features
+## Data Model
 
 ### Accounts
 
-- **User:** Extends the default Django `User` model with a UUID primary key, an email as the unique identifier, and a link to the company they belong to.
-- **Role:**  Defines a role within a company, with a set of associated permissions. Each role is linked to a Django `Group` to enforce access control.
+- **User:** Custom user model with a UUID primary key, email as the unique identifier and a link to the user's company.
+- **Role:** A company-specific set of permissions, backed by a Django `Group` for access control.
 
 ### Operations
 
-- **Company:** Represents a company using the platform. Contains basic company information such as name, registration number, and contact details.
-- **Client:** Represents a client of a company.
-- **Project:** Represents a project undertaken by a company for a client. It has a budget, a start and end date, and a status (planned, active, completed).
-- **EmployeeProject:** A through model that links an employee to a project, defining their role in that project.
+- **Company:** A company using the platform, with its name, registration number and contact details.
+- **Client:** A client of a company.
+- **Project:** Work undertaken for a client, with a budget, start and end dates, and a status (planned, active, completed).
+- **EmployeeProject:** Links an employee to a project and defines their role on it.
 
 ### Finance
 
-- **ExpenseCategory:** Categories for expenses (e.g., travel, supplies).
-- **Expense:** Represents an expense submitted by an employee for a specific project. It has a status (submitted, approved, rejected) and is linked to the employee who submitted it and the user who approved it.
-- **Invoice:** Represents an invoice sent to a client for a project. It has a status (draft, sent, partial, paid, overdue) and includes details such as subtotal, tax, and total amount.
-- **InvoiceItem:** Represents a line item on an invoice.
-- **Payment:** Represents a payment received for an invoice.
+- **ExpenseCategory:** Expense categories such as travel or supplies.
+- **Expense:** An expense submitted against a project, with a status (submitted, approved, rejected), the submitting employee and the approver.
+- **Invoice:** An invoice for a client, with a status (draft, sent, partial, paid, overdue), subtotal, tax and total.
+- **InvoiceItem:** A line item on an invoice.
+- **ProjectPaymentInvoice:** An invoice for project-based billing, kept separate from expense invoices.
+- **Payment:** A payment received against a project payment invoice, with a status (pending, confirmed, failed) and payment method (bank transfer, cash, JazzCash).
 
 ### Workforce
 
-- **EmployeeProfile:**  Contains detailed information about an employee, including their job title, employment type (full-time, contract), salary type (fixed, hourly), and joining date.
-- **Timesheet:**  Represents a timesheet submitted by an employee for the hours they've worked on a specific project. It has a status (submitted, approved).
-- **PayrollRun:** Represents a payroll run for a specific period for a company.
-- **PayrollItem:** Represents the payroll details for a single employee for a specific payroll run, including gross pay, deductions, and net pay.
+- **EmployeeProfile:** Job title, employment type (full-time, contract), salary type (fixed, hourly) and joining date.
+- **Timesheet:** Hours logged by an employee on a project, with a status (submitted, approved) and payment status.
+- **PayrollRun:** A payroll run for a company over a given period.
+- **PayrollItem:** One employee's pay for a payroll run, including gross pay, deductions and net pay.
 
 ## Technology Stack
 
-- **Backend:**
-    - [Django](https://www.djangoproject.com/): A high-level Python Web framework.
-    - [Django REST framework](https://www.django-rest-framework.org/): A powerful and flexible toolkit for building Web APIs (although this project seems to be primarily MVT).
-    - `django-jazzmin`: For a modern, responsive admin theme.
-    - `django-unfold`: For a modern, responsive admin theme.
-- **Database:**
-    - [PostgreSQL](https://www.postgresql.org/): A powerful, open source object-relational database system.
-- **Containerization:**
-    - [Docker](https://www.docker.com/): For containerizing and running the application.
-    - [Docker Compose](https://docs.docker.com/compose/): For defining and running multi-container Docker applications.
+| Layer | Technology |
+|---|---|
+| Backend | [Python 3.12](https://www.python.org/), [Django 5.1](https://www.djangoproject.com/) |
+| Database | [PostgreSQL](https://www.postgresql.org/) |
+| Task queue | [Celery](https://docs.celeryq.dev/) with [Redis](https://redis.io/) as broker |
+| Containerisation | [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/) |
+| CI/CD | GitHub Actions |
 
+## Project Structure
 
+```
+BudgetBridge/
+├── BudgetBridge/          # Project configuration (settings, URLs, Celery, WSGI/ASGI)
+│   └── settings/
+│       ├── base.py        # Shared settings
+│       ├── local.py       # Local development
+│       └── docker.py      # Docker environment
+├── accounts/              # Users, roles, authentication and dashboard
+├── operations/            # Companies, clients and projects
+├── finance/               # Expenses, invoices and payments
+├── workforce/             # Employee profiles, timesheets and payroll
+├── templates/             # HTML templates
+├── static/                # CSS, JavaScript and images
+├── Dockerfile
+├── docker-compose.yaml
+├── docker-compose-dev.yaml
+├── entrypoint.sh
+└── requirements.txt
+```
 
-## How to Run the App
+## Getting Started
 
-### Local Setup (without Docker)
+### Prerequisites
 
-1. **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd BudgetBridge
-    ```
+- Python 3.12
+- PostgreSQL
+- Redis
+- Docker and Docker Compose (for the Docker setup)
 
-2. **Create and activate a virtual environment:**
-    ```bash
-    python -m venv myenv
-    source myenv/bin/activate  # macOS/Linux
-    # myenv\Scripts\activate    # Windows
-    ```
+### Environment Variables
 
-3. **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+Create a `.env` file in the project root. It is listed in `.gitignore` and must never be committed.
 
-4. **Set up the database (PostgreSQL) & ENV:**
-    - Make sure PostgreSQL is installed and running.
-    - Create a database and user for the app:
-      ```sql
-      CREATE DATABASE budgetbridge_db;
-      CREATE USER budgetbridge_user WITH PASSWORD '12345678';
-      GRANT ALL PRIVILEGES ON DATABASE budgetbridge_db TO budgetbridge_user;
-      ```
-    - Create a `.env` file in the root directory with the following:
-      ```env
-      SECRET_KEY=<your-secret-key>
-      DEBUG=True
-      DB_NAME=budgetbridge_db
-      DB_USER=budgetbridge_user
-      DB_PASSWORD=12345678
-      DB_HOST=localhost
-      DB_PORT=5432
-      REDIS_URL_LOCAL=redis://localhost:6379/0
+| Variable | Used by | Description |
+|---|---|---|
+| `SECRET_KEY` | All | Django secret key |
+| `DEBUG` | All | `True` for development, `False` for production |
+| `EMAIL_HOST_USER` | All | SMTP username for outgoing email |
+| `EMAIL_HOST_PASSWORD` | All | SMTP password or app password |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` | Local | PostgreSQL connection |
+| `REDIS_URL_local` | Local | Redis URL for Celery |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT` | Docker | PostgreSQL connection |
+| `REDIS_URL` | Docker | Redis URL for Celery |
 
-      # Email
-      EMAIL_HOST_USER=
-      EMAIL_HOST_PASSWORD=
+### Local Setup
 
-      ```
+1. **Clone the repository**
 
-5. **Start Redis (if not already running):**
-    ```bash
-    brew services start redis   # macOS
-    # or for Linux:
-    sudo service redis-server start
-    ```
+   ```bash
+   git clone https://github.com/RAFAYULHAQ2003/BudgetBridge.git
+   cd BudgetBridge
+   ```
 
-6. **Run Django migrations:**
-    ```bash
-    python manage.py migrate
-    ```
+2. **Create and activate a virtual environment**
 
-7. **Create a superuser:**
-    ```bash
-    python manage.py createsuperuser
-    ```
+   ```bash
+   python3 -m venv myenv
+   source myenv/bin/activate      # macOS / Linux
+   # myenv\Scripts\activate       # Windows
+   ```
 
-8. **Start the Django development server:**
-    ```bash
-    export DJANGO_SETTINGS_MODULE=BudgetBridge.settings.local
-    python manage.py runserver
-    ```
+3. **Install dependencies**
 
-9. **Start Celery worker (for background tasks):**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Create the database**
+
+   ```sql
+   CREATE DATABASE budgetbridge_db;
+   CREATE USER budgetbridge_user WITH PASSWORD '<your-db-password>';
+   GRANT ALL PRIVILEGES ON DATABASE budgetbridge_db TO budgetbridge_user;
+   ```
+
+5. **Configure the environment**
+
+   ```env
+   SECRET_KEY=<your-secret-key>
+   DEBUG=True
+
+   DB_NAME=budgetbridge_db
+   DB_USER=budgetbridge_user
+   DB_PASSWORD=<your-db-password>
+   DB_HOST=localhost
+   DB_PORT=5432
+
+   REDIS_URL_local=redis://localhost:6379/0
+
+   EMAIL_HOST_USER=
+   EMAIL_HOST_PASSWORD=
+   ```
+
+6. **Start Redis**
+
+   ```bash
+   brew services start redis          # macOS
+   sudo service redis-server start    # Linux
+   ```
+
+7. **Select the local settings module**
+
+   Run this in every terminal you use for the project:
+
+   ```bash
+   export DJANGO_SETTINGS_MODULE=BudgetBridge.settings.local
+   ```
+
+8. **Apply migrations and create a superuser**
+
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+9. **Run the development server**
+
+   ```bash
+   python manage.py runserver
+   ```
+
+10. **Start the Celery worker** (in a second terminal)
+
     ```bash
     celery -A BudgetBridge worker --loglevel=info
     ```
 
-10. **Optional: Clean compiled Python files**
-    ```bash
-    find . -name "*.pyc" -delete
-    find . -name "__pycache__" -delete
-    ```
-
-11. **Access the app:**  
-    Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
-
----
+The application is available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 ### Docker Setup
 
-1. **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd BudgetBridge
-    ```
+1. **Clone the repository**
 
-2. **Ensure Docker and Docker Compose are installed.**
+   ```bash
+   git clone https://github.com/RAFAYULHAQ2003/BudgetBridge.git
+   cd BudgetBridge
+   ```
 
-3. **Set up the ENV:**
-      ```
-    - Create a `.env` file in the root directory with the following:
-      ```env
-      SECRET_KEY=<your-secret-key>
-      DEBUG=True
-      POSTGRES_DB=budgetbridge_db
-      POSTGRES_USER=budgetbridge_user
-      POSTGRES_PASSWORD=12345678
-      POSTGRES_HOST=db
-      POSTGRES_PORT=5432
-      REDIS_URL=redis://redis:6379/0
+2. **Configure the environment**
 
-      # Email
-      EMAIL_HOST_USER=
-      EMAIL_HOST_PASSWORD=
+   ```env
+   SECRET_KEY=<your-secret-key>
+   DEBUG=True
 
-      ```
+   POSTGRES_DB=budgetbridge_db
+   POSTGRES_USER=budgetbridge_user
+   POSTGRES_PASSWORD=<your-db-password>
+   POSTGRES_HOST=db
+   POSTGRES_PORT=5432
 
-4. **Build and start containers:**
-    ```bash
-    docker-compose up --build
-    ```
+   REDIS_URL=redis://redis:6379/0
 
-    This will start:
-    - Django app on [http://localhost:8000](http://localhost:8000)
-    - PostgreSQL database container
-    - Redis container
-    - Celery worker (if configured in `docker-compose.yml`)
+   EMAIL_HOST_USER=
+   EMAIL_HOST_PASSWORD=
+   ```
 
-5. **Optional: Run Django management commands inside Docker:**
-    ```bash
-    docker-compose exec web python manage.py migrate
-    docker-compose exec web python manage.py createsuperuser
-    ```
+3. **Build and start the containers**
 
-6. **Stop containers:**
-    ```bash
-    docker-compose down
-    ```
+   ```bash
+   docker compose up --build
+   ```
+
+   This starts four services:
+
+   | Service | Description |
+   |---|---|
+   | `server` | Django application on [http://localhost:8000](http://localhost:8000) |
+   | `db` | PostgreSQL database |
+   | `redis` | Redis broker |
+   | `celery` | Celery worker |
+
+   `docker-compose-dev.yaml` runs the prebuilt image published to Docker Hub instead of building locally:
+
+   ```bash
+   docker compose -f docker-compose-dev.yaml up
+   ```
+
+4. **Create a superuser**
+
+   ```bash
+   docker compose exec server python manage.py createsuperuser
+   ```
+
+5. **Stop the containers**
+
+   ```bash
+   docker compose down
+   ```

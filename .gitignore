@@ -1,35 +1,50 @@
-
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-
+# Virtual environments
 myenv/
 venv/
 env/
+.venv/
 
-
+# Django
 *.log
 local_settings.py
 db.sqlite3
 media/
+staticfiles/
 
+# Celery
+celerybeat-schedule
+celerybeat.pid
 
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Secrets and credentials
 .env
 .env.*
 *.pem
+creds.txt
 
-
+# Database dumps
 *.sql
-*.json
+db*.json
 
+# Disabled / legacy configuration
+BudgetBridge/settings.disabled
 
+# OS files
 .DS_Store
 Thumbs.db
 
-
+# IDE
 .vscode/
 .idea/
 
-
+# Runtime
 *.pid
